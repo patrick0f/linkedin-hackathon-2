@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons , Feather, FontAwesome, SimpleLineIcons} from '@expo/vector-icons';
 import { postStyles } from '../styles/postStyles';
 
 interface PostProps {
@@ -44,7 +44,7 @@ export const Post = ({
         </View>
 
         <View style={postStyles.headerConnect}>
-          <Ionicons name="person-add-sharp" size={20} color="#0a66c2" />
+          <Ionicons name="person-add-sharp" size={20} color="#0077B5" />
           <Text style={postStyles.actionTextConnect}>Connect</Text>
         </View>
 
@@ -80,7 +80,7 @@ export const Post = ({
       <View style={postStyles.actions}>
         <TouchableOpacity style={postStyles.actionButton} onPress={onLike}>
 
-          <Ionicons name="thumbs-up-outline" size={20} color="#666" />
+          <SimpleLineIcons name="like" size={20} color="#666" />
           <Text style={postStyles.actionText}>Like</Text>
         </TouchableOpacity>
 
@@ -90,12 +90,12 @@ export const Post = ({
         </TouchableOpacity>
 
         <TouchableOpacity style={postStyles.actionButton}>
-          <Ionicons name="share-outline" size={20} color="#666" />
+          <FontAwesome name="retweet" size={20} color="#666" />
           <Text style={postStyles.actionText}>Repost</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={postStyles.actionButton}>
-          <Ionicons name="share-outline" size={20} color="#666" />
+          <Feather name="send" size={20} color="#666" />
           <Text style={postStyles.actionText}>Send</Text>
         </TouchableOpacity>
       </View>
