@@ -30,10 +30,15 @@ export const messagesStyles = StyleSheet.create({
     color: '#000',
   },
   filtersContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+  },
+  filtersContentContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   filterButton: {
     paddingHorizontal: 12,
