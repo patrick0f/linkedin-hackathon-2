@@ -17,6 +17,12 @@ export const postStyles = StyleSheet.create({
     borderRadius: 24,
     marginRight: 12,
   },
+  profilePicBar: {
+   flexDirection: 'row',
+    alignItems: 'center',
+    width: 10,
+    height: 10,
+  },
   headerText: {
     flex: 1,
   },
@@ -44,6 +50,8 @@ export const postStyles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
     paddingTop: 8,
     marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   statsText: {
     fontSize: 12,
@@ -51,7 +59,7 @@ export const postStyles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     paddingTop: 8,
@@ -64,5 +72,9 @@ export const postStyles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     color: '#666',
+  },
+  headerConnect: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 }); 

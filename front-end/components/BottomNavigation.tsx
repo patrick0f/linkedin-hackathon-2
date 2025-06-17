@@ -10,16 +10,17 @@ export const BottomNavigation = () => {
         <Ionicons name="home" size={24} color="#666" />
         <Text style={bottomNavStyles.tabText}>Home</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={bottomNavStyles.tab}>
+        <Ionicons name="add-circle" size={24} color="#666" />
+        <Text style={bottomNavStyles.tabText}>Video</Text>
+      </TouchableOpacity>
       
       <TouchableOpacity style={bottomNavStyles.tab}>
         <Ionicons name="people" size={24} color="#666" />
         <Text style={bottomNavStyles.tabText}>My Network</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="add-circle" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>Post</Text>
-      </TouchableOpacity>
+  
       
       <TouchableOpacity style={bottomNavStyles.tab}>
         <Ionicons name="notifications" size={24} color="#666" />

@@ -8,6 +8,7 @@ export const headerStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    justifyContent: 'space-around',
   },
   profilePic: {
     width: 32,
@@ -29,6 +30,6 @@ export const headerStyles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: '#000',
+    color: 'white',
   },
 }); 

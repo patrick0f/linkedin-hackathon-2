@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { messagesStyles } from '../styles/messagesStyles';
+import CoffeeChats from './CoffeeChats';
 
 const MESSAGES = [
   {
@@ -49,49 +50,14 @@ const MESSAGES = [
 const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread'];
 
 export const Messages = ({ onClose }: { onClose: () => void }) => {
-  return (
-    <View style={messagesStyles.container}>
-      <View style={messagesStyles.header}>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="arrow-back" size={24} color="#666" />
-        </TouchableOpacity>
-        <View style={messagesStyles.searchContainer}>
-          <Ionicons name="search" size={20} color="#666" />
-          <TextInput
-            style={messagesStyles.searchInput}
-            placeholder="Search messages"
-            placeholderTextColor="#666"
-          />
-        </View>
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={24} color="#666" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="create-outline" size={24} color="#666" />
-        </TouchableOpacity>
-      </View>
+  const [activeFilter, setActiveFilter] = useState('Focused');
 
-      <ScrollView horizontal style={messagesStyles.filtersContainer}>
-        {MessageFilters.map((filter, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              messagesStyles.filterButton,
-              index === 0 && messagesStyles.activeFilter,
-            ]}
-          >
-            <Text
-              style={[
-                messagesStyles.filterText,
-                index === 0 && messagesStyles.activeFilterText,
-              ]}
-            >
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+  const renderContent = () => {
+    if (activeFilter === 'Coffee Chats') {
+      return <CoffeeChats />;
+    }
 
+    return (
       <ScrollView style={messagesStyles.messagesList}>
         {MESSAGES.map((message) => (
           <TouchableOpacity key={message.id} style={messagesStyles.messageItem}>
@@ -128,6 +94,54 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
+    );
+  };
+
+  return (
+    <View style={messagesStyles.container}>
+      <View style={messagesStyles.header}>
+        <TouchableOpacity onPress={onClose}>
+          <Ionicons name="arrow-back" size={24} color="#666" />
+        </TouchableOpacity>
+        <View style={messagesStyles.searchContainer}>
+          <Ionicons name="search" size={20} color="#666" />
+          <TextInput
+            style={messagesStyles.searchInput}
+            placeholder="Search messages"
+            placeholderTextColor="#666"
+          />
+        </View>
+        <TouchableOpacity>
+          <Ionicons name="ellipsis-horizontal" size={24} color="#666" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="create-outline" size={24} color="#666" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView horizontal style={messagesStyles.filtersContainer}>
+        {MessageFilters.map((filter, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              messagesStyles.filterButton,
+              filter === activeFilter && messagesStyles.activeFilter,
+            ]}
+            onPress={() => setActiveFilter(filter)}
+          >
+            <Text
+              style={[
+                messagesStyles.filterText,
+                filter === activeFilter && messagesStyles.activeFilterText,
+              ]}
+            >
+              {filter}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {renderContent()}
     </View>
   );
 }; 
