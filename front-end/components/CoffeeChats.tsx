@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType, Modal } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
+import CoffeeChatScheduler from './CoffeeChatScheduler';
 
 interface MatchProfile {
   id: string;
@@ -24,6 +25,13 @@ const CoffeeChats: React.FC = () => {
   const [availabilityByDay, setAvailabilityByDay] = useState<{ [key: number]: string[] }>({});
   const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(true);
+  const [showScheduler, setShowScheduler] = useState(false);
+
+  useEffect(() => {
+    if (submittedAvailabilities.length > 0) {
+      console.log('All submitted availabilities:', submittedAvailabilities);
+    }
+  }, [submittedAvailabilities]);
 
   // Static weekdays array
   const weekDays = [
@@ -197,7 +205,7 @@ const CoffeeChats: React.FC = () => {
             <View style={coffeeChatStyles.buttonContainer}>
               <TouchableOpacity 
                 style={coffeeChatStyles.scheduleButton}
-                onPress={() => {}}
+                onPress={() => setShowScheduler(true)}
               >
                 <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
               </TouchableOpacity>
@@ -208,6 +216,23 @@ const CoffeeChats: React.FC = () => {
           </View>
         </View>
       ))}
+
+      {/* Bottom Sheet Modal for Scheduler */}
+      <Modal
+        visible={showScheduler}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowScheduler(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+          <View style={{ height: '65%', backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' }}>
+            <CoffeeChatScheduler 
+              onClose={() => setShowScheduler(false)}
+              onMessage={() => { setShowScheduler(false); /* Optionally handle message action */ }}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };

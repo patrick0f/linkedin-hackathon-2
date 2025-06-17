@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 
 interface TimeSlot {
   date: string;
@@ -30,7 +29,8 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
     time: string;
     date: string;
   } | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
 
   // Mock data - replace with actual data later
   const matchProfile: MatchProfile = {
@@ -59,17 +59,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
         slots: ['10:00 AM - 10:30 AM']
       }
     ]
-  };
-
-  const handleTimeSelect = (time: string, date: string) => {
-    setSelectedTime({ time, date });
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmationClose = () => {
-    setShowConfirmation(false);
-    setSelectedTime(null);
-    onClose();
   };
 
   return (
@@ -123,7 +112,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
                     styles.timeSlot,
                     selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
                   ]}
-                  onPress={() => handleTimeSelect(slot, timeSlot.date)}
+                  onPress={() => setSelectedTime({ time: slot, date: timeSlot.date })}
                 >
                   <Text style={[
                     styles.timeSlotText,
@@ -142,6 +131,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
         <TouchableOpacity 
           style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
           disabled={!selectedTime}
+          onPress={() => setShowMeetingModal(true)}
         >
           <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
           <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
@@ -152,13 +142,65 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
         </TouchableOpacity>
       </View>
 
-      {showConfirmation && selectedTime && (
-        <ScheduleConfirmationModal
-          scheduledTime={selectedTime.time}
-          scheduledDate={selectedTime.date}
-          onClose={handleConfirmationClose}
-        />
-      )}
+      <Modal
+        visible={showMeetingModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowMeetingModal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowMeetingModal(false)}>
+          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ height: '65%', backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden', padding: 24, alignItems: 'center' }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 12 }}>
+                  <Image source={matchProfile.avatar} style={{ width: 48, height: 48, borderRadius: 24, marginRight: 16 }} />
+                  <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                    Coffee chat with{"\n"}
+                    <Text style={{ fontWeight: '700' }}>{matchProfile.name}</Text>
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 16, color: '#666', marginBottom: 24, width: '100%' }}>
+                  {selectedTime ? `${selectedTime.date.replace(/,? \d{4}/, '')}, ${selectedTime.time}` : 'Select a time slot above'}
+                </Text>
+                <TextInput
+                  style={{
+                    width: '100%',
+                    minHeight: 80,
+                    borderColor: '#E0E0E0',
+                    borderWidth: 1,
+                    borderRadius: 12,
+                    padding: 16,
+                    fontSize: 16,
+                    marginBottom: 24,
+                    backgroundColor: '#F5F5F5',
+                    textAlignVertical: 'top',
+                  }}
+                  multiline
+                  value={greeting}
+                  onChangeText={setGreeting}
+                />
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#0A66C2',
+                    paddingVertical: 16,
+                    paddingHorizontal: 32,
+                    borderRadius: 24,
+                    alignItems: 'center',
+                    width: '100%',
+                    marginTop: 0,
+                  }}
+                  onPress={() => setShowMeetingModal(false)}
+                >
+                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Schedule meeting</Text>
+                </TouchableOpacity>
+              </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
