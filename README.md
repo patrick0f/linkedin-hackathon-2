@@ -10,6 +10,24 @@ AI-powered networking features and smart coffee-chat scheduling!
 - 🎯 Personalized conversation starters
 - 📊 Availability matching system
 
+## Tech Stack
+
+### Frontend
+- 📱 React Native with Expo - Mobile application framework
+- 🎨 TypeScript - Type-safe JavaScript
+- 📡 Axios - HTTP client
+
+### Backend
+- 🚀 Express.js - Node.js web framework
+- 🔒 TypeScript - Type safety
+- 🗄️ Supabase - Database and real-time features
+- 🤖 OpenAI/ChatGPT - AI conversation generation
+
+### Development & Deployment
+- 📦 npm - Package management
+- 🛠️ ESLint - Code linting
+- 📱 Expo CLI - Mobile development tooling
+
 ## Prerequisites
 
 Before you begin, ensure you have installed:
