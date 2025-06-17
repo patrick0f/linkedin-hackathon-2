@@ -121,4 +121,22 @@ export const chatDetailStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  optionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    paddingVertical: 8,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    paddingHorizontal: 16,
+  },
+  optionText: {
+    fontSize: 14,
+    color: '#666666',
+    marginLeft: 16,
+    fontWeight: 500,
+  },
 }); 
