@@ -13,6 +13,7 @@ export interface Post {
   pic_link: string | null;
   comments: string[] | null;
   num_of_likes: number;
+  pfp: string | null;
   user?: User;
 }
 

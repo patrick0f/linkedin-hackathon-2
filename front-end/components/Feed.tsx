@@ -17,6 +17,7 @@ interface PostData {
   pic_link: string | null;
   comments: string[] | null;
   num_of_likes: number;
+  pfp: string | null;
   created_at?: string;
 }
 
@@ -33,13 +34,11 @@ export const Feed = () => {
 
   const loadData = async () => {
     try {
-      // Load posts and users in parallel
       const [postsData, usersData] = await Promise.all([
         postService.getAllPosts(),
         userService.getAllUsers()
       ]);
 
-      // Create a map of users by ID for easy lookup
       const usersMap = usersData.reduce((acc: Record<string, User>, user: User) => {
         acc[user.id] = user;
         return acc;
@@ -60,7 +59,6 @@ export const Feed = () => {
     if (!newPostText.trim()) return;
 
     try {
-      // TODO: Replace with actual user ID from authentication
       const newPost = await postService.createPost({
         user_id: 'test-user-id',
         post_text: newPostText,
@@ -116,42 +114,45 @@ export const Feed = () => {
 
   return (
     <View style={feedStyles.container}>
-      <View style={feedStyles.createPostContainer}>
-        <TextInput
-          style={feedStyles.input}
-          value={newPostText}
-          onChangeText={setNewPostText}
-          placeholder="What's on your mind?"
-          multiline
-        />
-        <TouchableOpacity
-          style={feedStyles.postButton}
-          onPress={handleCreatePost}
-          disabled={!newPostText.trim()}
-        >
-          <Text style={feedStyles.postButtonText}>Post</Text>
-        </TouchableOpacity>
-      </View>
+      <View style={feedStyles.contentContainer}>
+        <View style={feedStyles.createPostContainer}>
+          <TextInput
+            style={feedStyles.input}
+            value={newPostText}
+            onChangeText={setNewPostText}
+            placeholder="What's on your mind?"
+            multiline
+          />
+          <TouchableOpacity
+            style={feedStyles.postButton}
+            onPress={handleCreatePost}
+            disabled={!newPostText.trim()}
+          >
+            <Text style={feedStyles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView>
-        {posts.map((post) => {
-          const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
-          return (
-            <Post
-              key={post.id}
-              name={user.name}
-              title={user.current_location || 'No location'}
-              timePosted={formatTimePosted(post.created_at)}
-              content={post.post_text || ''}
-              likes={post.num_of_likes}
-              comments={post.comments?.length || 0}
-              onLike={() => handleLikePost(post)}
-              imageUrl={post.pic_link}
-            />
-          );
-        })}
-        <View style={feedStyles.bottomPadding} />
-      </ScrollView>
+        <ScrollView style={feedStyles.scrollView}>
+          {posts.map((post) => {
+            const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
+            return (
+              <Post
+                key={post.id}
+                name={user.name}
+                title={user.current_location || 'No location'}
+                timePosted={formatTimePosted(post.created_at)}
+                content={post.post_text || ''}
+                likes={post.num_of_likes}
+                comments={post.comments?.length || 0}
+                onLike={() => handleLikePost(post)}
+                imageUrl={post.pic_link}
+                profilePicUrl={post.pfp || undefined}
+              />
+            );
+          })}
+          <View style={feedStyles.bottomPadding} />
+        </ScrollView>
+      </View>
     </View>
   );
 }; 

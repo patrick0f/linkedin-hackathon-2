@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { postStyles } from '../styles/postStyles';
 
@@ -12,15 +12,30 @@ interface PostProps {
   comments: number;
   onLike?: () => void;
   imageUrl?: string | null;
+  profilePicUrl?: string;
 }
 
-export const Post = ({ name, title, timePosted, content, likes, comments, onLike, imageUrl }: PostProps) => {
+export const Post = ({ 
+  name, 
+  title, 
+  timePosted, 
+  content, 
+  likes, 
+  comments, 
+  onLike, 
+  imageUrl,
+  profilePicUrl 
+}: PostProps) => {
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   return (
     <View style={postStyles.container}>
       <View style={postStyles.header}>
         <Image
           style={postStyles.profilePic}
-          source={require('../assets/default-profile.png')}
+          source={profilePicUrl ? { uri: profilePicUrl } : require('../assets/default-profile.png')}
+          defaultSource={require('../assets/default-profile.png')}
         />
         <View style={postStyles.headerText}>
           <Text style={postStyles.name}>{name}</Text>
@@ -31,12 +46,24 @@ export const Post = ({ name, title, timePosted, content, likes, comments, onLike
 
       <Text style={postStyles.content}>{content}</Text>
 
-      {imageUrl && (
-        <Image
-          source={{ uri: imageUrl }}
-          style={postStyles.contentImage}
-          resizeMode="cover"
-        />
+      {imageUrl && !imageError && (
+        <View style={postStyles.imageContainer}>
+          <Image
+            source={{ uri: imageUrl }}
+            style={postStyles.contentImage}
+            resizeMode="contain"
+            onLoadStart={() => setImageLoading(true)}
+            onLoadEnd={() => setImageLoading(false)}
+            onError={() => setImageError(true)}
+          />
+          {imageLoading && (
+            <ActivityIndicator 
+              size="large" 
+              color="#0077B5"
+              style={{ position: 'absolute', top: '50%', left: '50%', marginLeft: -20, marginTop: -20 }}
+            />
+          )}
+        </View>
       )}
 
       <View style={postStyles.stats}>

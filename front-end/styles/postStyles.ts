@@ -1,4 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const MAX_CONTENT_WIDTH = 600; // Maximum width for content on web
+const IMAGE_HEIGHT = 350; // Consistent height for all images
 
 export const postStyles = StyleSheet.create({
   container: {
@@ -6,6 +10,9 @@ export const postStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     padding: 16,
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: 'center',
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
@@ -16,6 +23,8 @@ export const postStyles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     marginRight: 12,
+    backgroundColor: '#f0f0f0', // Placeholder color while loading
+    objectFit: 'cover',
   },
   headerText: {
     flex: 1,
@@ -39,11 +48,21 @@ export const postStyles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 12,
   },
+  imageContainer: {
+    width: '100%',
+    height: IMAGE_HEIGHT,
+    marginBottom: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   contentImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 12,
+    height: '100%',
+    objectFit: 'contain', // This will maintain aspect ratio while fitting within the container
   },
   stats: {
     flexDirection: 'row',

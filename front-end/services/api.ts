@@ -68,7 +68,12 @@ export const postService = {
   },
 
   // Create new post
-  createPost: async (postData: { user_id: string; post_text: string; pic_link?: string }) => {
+  createPost: async (postData: { 
+    user_id: string; 
+    post_text: string; 
+    pic_link?: string;
+    pfp?: string;
+  }) => {
     try {
       const response = await api.post('/api/posts', postData);
       return response.data;

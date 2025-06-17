@@ -3,7 +3,17 @@ import { StyleSheet } from 'react-native';
 export const feedStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f2ef',
+    alignItems: 'center',
+    width: '100%',
+  },
+  contentContainer: {
+    width: '100%',
+    maxWidth: 600, // Match the post container max width
+    flex: 1,
+  },
+  scrollView: {
+    width: '100%',
   },
   bottomPadding: {
     height: 20,
@@ -29,6 +39,7 @@ export const feedStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    width: '100%',
   },
   input: {
     minHeight: 100,
