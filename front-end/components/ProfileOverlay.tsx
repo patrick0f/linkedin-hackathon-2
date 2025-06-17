@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { profileOverlayStyles } from '../styles/profileOverlayStyles';
+import PointsExplanationModal from './PointsExplanationModal';
 
 interface ProfileOverlayProps {
   visible: boolean;
@@ -9,6 +10,8 @@ interface ProfileOverlayProps {
 }
 
 export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
+  const [showPointsModal, setShowPointsModal] = useState(false);
+
   return (
     <Modal
       visible={visible}
@@ -81,7 +84,10 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
                   <FontAwesome name="linkedin" size={12} color="#fff" />
                 </View>
               </View>
-              <TouchableOpacity style={profileOverlayStyles.whyPointsButton}>
+              <TouchableOpacity 
+                style={profileOverlayStyles.whyPointsButton}
+                onPress={() => setShowPointsModal(true)}
+              >
                 <Text style={profileOverlayStyles.whyPointsText}>Why we have points</Text>
               </TouchableOpacity>
             </View>
@@ -102,6 +108,10 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
             <Text style={profileOverlayStyles.settingsText}>Settings</Text>
           </TouchableOpacity>
         </ScrollView>
+
+        {showPointsModal && (
+          <PointsExplanationModal onClose={() => setShowPointsModal(false)} />
+        )}
       </View>
     </Modal>
   );
