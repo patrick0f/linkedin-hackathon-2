@@ -106,4 +106,118 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Like a post
+router.post('/:id/like', async (req: Request, res: Response) => {
+  const postId = req.params.id;
+  const { user_id } = req.body;
+
+  console.log('Like request received:', {
+    postId,
+    user_id,
+    body: req.body
+  });
+
+  if (!user_id) {
+    console.log('Missing user_id in request');
+    return res.status(400).json({ error: 'user_id is required' });
+  }
+
+  try {
+    // Get the current post
+    console.log('Fetching post:', postId);
+    const { data: post, error: postError } = await supabase
+      .from('posts_activity')
+      .select('num_of_likes')
+      .eq('id', postId)
+      .single();
+    
+    if (postError) {
+      console.error('Error fetching post:', postError);
+      throw postError;
+    }
+    if (!post) {
+      console.log('Post not found:', postId);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    console.log('Current post state:', post);
+
+    // Update the post's like count
+    console.log('Updating post likes:', {
+      postId,
+      currentLikes: post.num_of_likes,
+      newLikes: post.num_of_likes + 1
+    });
+
+    const { data: updatedPost, error: updateError } = await supabase
+      .from('posts_activity')
+      .update({ 
+        num_of_likes: post.num_of_likes + 1
+      })
+      .eq('id', postId)
+      .select()
+      .single();
+    
+    if (updateError) {
+      console.error('Error updating post:', updateError);
+      throw updateError;
+    }
+
+    // Get current user data
+    console.log('Fetching user:', user_id);
+    const { data: currentUser, error: getCurrentUserError } = await supabase
+      .from('users')
+      .select('streak_count')
+      .eq('id', user_id)
+      .single();
+    
+    if (getCurrentUserError) {
+      console.error('Error fetching user:', getCurrentUserError);
+      throw getCurrentUserError;
+    }
+    if (!currentUser) {
+      console.log('User not found:', user_id);
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    console.log('Current user state:', currentUser);
+
+    // Update user's streak count
+    console.log('Updating user streak:', {
+      userId: user_id,
+      currentStreak: currentUser.streak_count,
+      newStreak: currentUser.streak_count + 5
+    });
+
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .update({ 
+        streak_count: currentUser.streak_count + 5
+      })
+      .eq('id', user_id)
+      .select()
+      .single();
+    
+    if (userError) {
+      console.error('Error updating user:', userError);
+      throw userError;
+    }
+
+    console.log('Like operation successful:', {
+      updatedPost,
+      updatedUser: user
+    });
+
+    res.json({ post: updatedPost, streak_count: user.streak_count });
+  } catch (error: any) {
+    console.error('Like post error:', {
+      error,
+      message: error.message,
+      details: error.details,
+      hint: error.hint
+    });
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router; 

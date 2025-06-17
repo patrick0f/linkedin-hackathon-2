@@ -4,6 +4,7 @@ export interface User {
   current_location?: string | null;
   created_at: string;
   updated_at: string;
+  streak_count: number;
 }
 
 export interface Post {

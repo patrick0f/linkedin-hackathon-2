@@ -3,11 +3,7 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
-<<<<<<< HEAD
-import PostPointsPopup from './PostPointsPopup';
-=======
 import { useUser } from '../contexts/UserContext';
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface User {
   id: string;
@@ -133,26 +129,6 @@ export const Feed = () => {
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
-<<<<<<< HEAD
-        <ScrollView style={feedStyles.scrollView}>
-          <View style={feedStyles.createPostContainer}>
-            <TextInput
-              style={feedStyles.input}
-              value={newPostText}
-              onChangeText={setNewPostText}
-              placeholder="What's on your mind?"
-              multiline
-            />
-            <TouchableOpacity
-              style={feedStyles.postButton}
-              onPress={handleCreatePost}
-              disabled={!newPostText.trim()}
-              testID="post-button"
-            >
-              <Text style={feedStyles.postButtonText}>Post</Text>
-            </TouchableOpacity>
-          </View>
-=======
         <View style={feedStyles.createPostContainer}>
           <TextInput
             style={feedStyles.input}
@@ -169,7 +145,6 @@ export const Feed = () => {
             <Text style={feedStyles.postButtonText}>Post</Text>
           </TouchableOpacity>
         </View>
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
         <ScrollView style={feedStyles.scrollView}>
           {posts.map((post) => {
@@ -177,13 +152,13 @@ export const Feed = () => {
             return (
               <Post
                 key={post.id}
+                post_id={post.id}
                 name={user.name}
                 title={user.current_location || 'No location'}
                 timePosted={formatTimePosted(post.created_at)}
                 content={post.post_text || ''}
                 likes={post.num_of_likes}
                 comments={post.comments?.length || 0}
-                onLike={() => handleLikePost(post)}
                 imageUrl={post.pic_link}
                 profilePicUrl={user.profile_pic || undefined}
               />
@@ -192,10 +167,6 @@ export const Feed = () => {
           <View style={feedStyles.bottomPadding} />
         </ScrollView>
       </View>
-
-      {showPostPoints && (
-        <PostPointsPopup onFadeOut={() => setShowPostPoints(false)} />
-      )}
     </View>
   );
 }; 

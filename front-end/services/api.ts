@@ -103,6 +103,35 @@ export const postService = {
       throw error;
     }
   },
+
+  // Like post
+  likePost: async (postId: string, userId: string) => {
+    console.log('Making like request:', {
+      endpoint: `/api/posts/${postId}/like`,
+      userId,
+      postId
+    });
+    try {
+      const response = await api.post(`/api/posts/${postId}/like`, { user_id: userId });
+      console.log('Like request successful:', {
+        status: response.status,
+        data: response.data
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Error in likePost service:', {
+        error,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.config?.data
+        }
+      });
+      throw error;
+    }
+  },
 };
 
 export default api; 

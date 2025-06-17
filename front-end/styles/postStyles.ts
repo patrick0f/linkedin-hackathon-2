@@ -96,11 +96,17 @@ export const postStyles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 8,
   },
+  actionButtonActive: {
+    opacity: 1,
+  },
   actionText: {
     marginLeft: 4,
     fontSize: 14,
     color: '#666',
     fontWeight: 'bold',
+  },
+  actionTextActive: {
+    color: '#0077B5',
   },
   actionTextConnect: {
     marginLeft: 4,

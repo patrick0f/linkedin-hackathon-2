@@ -2,38 +2,77 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons , Feather, FontAwesome, SimpleLineIcons} from '@expo/vector-icons';
 import { postStyles } from '../styles/postStyles';
-import PointsPopup from './PointsPopup';
+import { postService } from '../services/api';
+import { useUser } from '../contexts/UserContext';
 
 interface PostProps {
+  post_id: string;
   name: string;
   title: string;
   timePosted: string;
   content: string;
   likes: number;
   comments: number;
-  onLike?: () => void;
+  isLiked?: boolean;
+  onLikeUpdate?: (newLikeCount: number) => void;
   imageUrl?: string | null;
   profilePicUrl?: string;
 }
 
 export const Post = ({ 
+  post_id,
   name, 
   title, 
   timePosted, 
   content, 
-  likes, 
-  comments, 
-  onLike, 
+  likes: initialLikes, 
+  comments,
+  isLiked: initialIsLiked = false,
+  onLikeUpdate,
   imageUrl,
   profilePicUrl 
 }: PostProps) => {
+  const { currentUser, loading: userLoading } = useUser();
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [showPointsPopup, setShowPointsPopup] = useState(false);
+  const [likeCount, setLikeCount] = useState(initialLikes);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [isLiking, setIsLiking] = useState(false);
 
-  const handleLike = () => {
-    onLike?.();
-    setShowPointsPopup(true);
+  const handleLike = async () => {
+    if (isLiking || userLoading || !currentUser) {
+      console.log('Like prevented:', { 
+        isLiking, 
+        userLoading, 
+        hasCurrentUser: !!currentUser 
+      });
+      return;
+    }
+    
+    setIsLiking(true);
+    console.log('Attempting to like post:', { 
+      post_id, 
+      user_id: currentUser.id,
+      currentLikes: likeCount
+    });
+
+    try {
+      const response = await postService.likePost(post_id, currentUser.id);
+      console.log('Like response:', response);
+      const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
+      setLikeCount(newLikeCount);
+      setIsLiked(!isLiked);
+      onLikeUpdate?.(newLikeCount);
+    } catch (error: any) {
+      console.error('Error liking post:', {
+        error,
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   return (
@@ -80,18 +119,24 @@ export const Post = ({
       )}
 
       <View style={postStyles.stats}>
-        <Text style={postStyles.statsText}>{likes} likes </Text>
+        <Text style={postStyles.statsText}>{likeCount} likes </Text>
         <Text style={postStyles.statsText}>{comments} comments</Text>
       </View>
 
       <View style={postStyles.actions}>
-        <TouchableOpacity
-          style={postStyles.actionButton}
+        <TouchableOpacity 
+          style={[postStyles.actionButton, isLiked && postStyles.actionButtonActive]} 
           onPress={handleLike}
-          testID="like-button"
+          disabled={isLiking}
         >
-          <SimpleLineIcons name="like" size={20} color="#666" />
-          <Text style={postStyles.actionText}>Like</Text>
+          <SimpleLineIcons 
+            name={isLiked ? "like" : "like"} 
+            size={20} 
+            color={isLiked ? "#0077B5" : "#666"} 
+          />
+          <Text style={[postStyles.actionText, isLiked && postStyles.actionTextActive]}>
+            {isLiking ? 'Liking...' : 'Like'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={postStyles.actionButton}>
@@ -109,10 +154,6 @@ export const Post = ({
           <Text style={postStyles.actionText}>Send</Text>
         </TouchableOpacity>
       </View>
-
-      {showPointsPopup && (
-        <PointsPopup onFadeOut={() => setShowPointsPopup(false)} />
-      )}
     </View>
   );
 }; 

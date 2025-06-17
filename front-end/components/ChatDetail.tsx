@@ -1,45 +1,31 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
-import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
-=======
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 import { chatDetailStyles } from '../styles/chatDetailStyles';
 import { useUser } from '../contexts/UserContext';
+
+interface Message {
+  id: string;
+  text: string;
+  timestamp: string;
+  sender: string;
+  isScheduler?: boolean;
+}
 
 interface ChatDetailProps {
   onBack: () => void;
   onNavigateToCoffeeChats: () => void;
   schedulerInfo: {
     name: string;
-<<<<<<< HEAD
-    time?: string;
-    date?: string;
-=======
     avatar: any;
     status?: string;
     userId: string;
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
   };
 }
 
-<<<<<<< HEAD
-const ChatDetail: React.FC<ChatDetailProps> = ({
-  onBack,
-  onNavigateToCoffeeChats,
-  schedulerInfo,
-}) => {
-  const [message, setMessage] = React.useState(
-    "Hi! I saw we have similar interests in technology and career development. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?"
-  );
-  const [showOptions, setShowOptions] = useState(false);
-=======
 // Different conversation starters based on the user's name
 const CONVERSATION_TEMPLATES = [
   {
@@ -110,14 +96,15 @@ const FOLLOW_UP_MESSAGES: Record<Topic, string[]> = {
   ],
 };
 
-const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleChat }) => {
+const ChatDetail: React.FC<ChatDetailProps> = ({ onBack, onNavigateToCoffeeChats, schedulerInfo }) => {
   const [showOptions, setShowOptions] = useState(false);
+  const [message, setMessage] = useState('');
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     // Generate a conversation based on the user's name
-    const nameSum = contact.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const nameSum = schedulerInfo.name.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
     const topicIndex = nameSum % CONVERSATION_TEMPLATES.length;
     const topic = CONVERSATION_TEMPLATES[topicIndex].topic;
     
@@ -137,7 +124,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
         id: '1',
         text: initialMessage,
         timestamp: `${hour-2}:${minute.toString().padStart(2, '0')}`,
-        sender: contact.name,
+        sender: schedulerInfo.name,
       },
       {
         id: '2',
@@ -149,14 +136,14 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
         id: '3',
         text: followUpMessage,
         timestamp: `${hour-1}:${minute.toString().padStart(2, '0')}`,
-        sender: contact.name,
+        sender: schedulerInfo.name,
       },
       {
         id: '4',
         isScheduler: true,
-        text: `Chat with ${contact.name}`,
+        text: `Chat with ${schedulerInfo.name}`,
         timestamp: `${hour-1}:${(minute+2).toString().padStart(2, '0')}`,
-        sender: contact.name,
+        sender: schedulerInfo.name,
       },
       {
         id: '5',
@@ -167,8 +154,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
     ];
 
     setMessages(conversation);
-  }, [contact.name, currentUser?.name]);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
+  }, [schedulerInfo.name, currentUser?.name]);
 
   const renderOptionsBar = () => {
     if (!showOptions) return null;
@@ -221,8 +207,6 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
   };
 
   const renderSchedulerMessage = () => {
-    if (!schedulerInfo.time || !schedulerInfo.date) return null;
-
     return (
       <View style={styles.schedulerMessage}>
         <TouchableOpacity 
@@ -250,20 +234,6 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
         <Text style={styles.headerTitle}>Chat</Text>
       </View>
 
-<<<<<<< HEAD
-      <TouchableOpacity
-        style={styles.schedulerInfo}
-        onPress={onNavigateToCoffeeChats}
-        testID="scheduler-info"
-      >
-        <View style={styles.schedulerContent}>
-          <View style={styles.schedulerLeft}>
-            <Text style={styles.schedulerTitle}>{schedulerInfo.name} Meeting</Text>
-            {schedulerInfo.time && schedulerInfo.date && (
-              <Text style={styles.schedulerTime}>
-                {schedulerInfo.time} on {schedulerInfo.date}
-              </Text>
-=======
       <ScrollView style={chatDetailStyles.messageList}>
         {messages.map((message) => (
           <View 
@@ -276,7 +246,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
             {message.isScheduler ? (
               <TouchableOpacity 
                 style={chatDetailStyles.schedulerContainer}
-                onPress={onScheduleChat}
+                onPress={onNavigateToCoffeeChats}
               >
                 <View style={chatDetailStyles.schedulerContent}>
                   <Ionicons name="calendar" size={20} color="#0A66C2" />
@@ -284,7 +254,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
                     <Text style={chatDetailStyles.schedulerTitle}>{message.text}</Text>
                     <Text 
                       style={chatDetailStyles.schedulerLink}
-                      onPress={onScheduleChat}
+                      onPress={onNavigateToCoffeeChats}
                     >
                       Coffee Chat Scheduler
                     </Text>
@@ -296,16 +266,12 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
                 <Text style={chatDetailStyles.messageText}>{message.text}</Text>
                 <Text style={chatDetailStyles.timestamp}>{message.timestamp}</Text>
               </>
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
             )}
           </View>
-          <Ionicons name="calendar-outline" size={24} color="#0A66C2" />
-        </View>
-      </TouchableOpacity>
-
-      <ScrollView style={styles.messageList}>
-        {renderSchedulerMessage()}
+        ))}
       </ScrollView>
+
+      {renderSchedulerMessage()}
 
       {renderOptionsBar()}
 

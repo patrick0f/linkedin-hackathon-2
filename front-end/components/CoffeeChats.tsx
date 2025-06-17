@@ -30,17 +30,16 @@ const CoffeeChats: React.FC = () => {
   const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showScheduler, setShowScheduler] = useState(false);
-<<<<<<< HEAD
   const [showChat, setShowChat] = useState(false);
   const [schedulerInfo, setSchedulerInfo] = useState<{
     name: string;
     time?: string;
     date?: string;
+    avatar: any;
+    userId: string;
   } | null>(null);
-=======
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
   useEffect(() => {
     if (submittedAvailabilities.length > 0) {
@@ -104,7 +103,11 @@ const CoffeeChats: React.FC = () => {
   };
 
   const handleNavigateToChat = (info: { name: string; time?: string; date?: string }) => {
-    setSchedulerInfo(info);
+    setSchedulerInfo({
+      ...info,
+      avatar: require('../assets/default-profile.png'),
+      userId: 'mock-user-id'
+    });
     setShowScheduler(false);
     setShowChat(true);
   };

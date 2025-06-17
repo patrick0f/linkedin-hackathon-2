@@ -33,20 +33,14 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
   const [activeFilter, setActiveFilter] = useState('Focused');
   const [selectedChat, setSelectedChat] = useState<{
     name: string;
-<<<<<<< HEAD
-    time?: string;
-    date?: string;
-  } | null>(null);
-  const [showCoffeeChats, setShowCoffeeChats] = useState(false);
-=======
     avatar: any;
     status?: string;
     userId: string;
-  }>(null);
+  } | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
+  const [showCoffeeChats, setShowCoffeeChats] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -70,14 +64,10 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
 
   const handleChatPress = (user: User) => {
     setSelectedChat({
-<<<<<<< HEAD
-      name: message.name,
-=======
       name: user.name,
       avatar: user.profile_pic ? { uri: user.profile_pic } : require('../assets/default-profile.png'),
       status: 'Online', // Hardcoded for now
       userId: user.id,
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
     });
   };
 

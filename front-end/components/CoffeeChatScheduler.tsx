@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-<<<<<<< HEAD
-import ScheduleConfirmationModal from './ScheduleConfirmationModal';
-=======
 import { Image as RNImage } from 'react-native';
 import MeetingConfirmationModal from './MeetingConfirmationModal';
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface TimeSlot {
   date: string;
@@ -45,7 +41,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Mock data - replace with actual data later
   const matchProfile: MatchProfile = {
@@ -68,33 +63,16 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     ]
   };
 
-<<<<<<< HEAD
-  const handleTimeSelect = (time: string, date: string) => {
-    setSelectedTime({ time, date });
-    setShowConfirmation(true);
-  };
-
-  const handleMessage = () => {
-    onNavigateToChat({
-      name: matchProfile.name,
-      ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
-    });
-=======
   const handleScheduleMeeting = () => {
     setShowMeetingModal(false);
     // Small delay to ensure smooth transition
     setTimeout(() => {
       setShowConfirmation(true);
     }, 100);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
   };
 
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
-<<<<<<< HEAD
-    setSelectedTime(null);
-    onClose();
-=======
     setShowMeetingModal(false);
     setSelectedTime(null);
     setGreeting('Hi Thomas, looking forward to our coffee chat!');
@@ -107,7 +85,14 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   const handleTimeSlotPress = (slot: string, date: string) => {
     setSelectedTime({ time: slot, date });
     setShowMeetingModal(true);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
+  };
+
+  const onMessage = () => {
+    onNavigateToChat({
+      name: matchProfile.name,
+      time: selectedTime?.time,
+      date: selectedTime?.date,
+    });
   };
 
   return (
@@ -161,11 +146,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                     styles.timeSlot,
                     selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
                   ]}
-<<<<<<< HEAD
-                  onPress={() => handleTimeSelect(slot, timeSlot.date)}
-=======
                   onPress={() => handleTimeSlotPress(slot, timeSlot.date)}
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
                 >
                   <Text style={[
                     styles.timeSlotText,
@@ -181,22 +162,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
       </ScrollView>
 
       <View style={styles.footer}>
-<<<<<<< HEAD
-        <TouchableOpacity 
-          style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
-          disabled={!selectedTime}
-        >
-          <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
-          <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.messageButton} 
-          onPress={handleMessage}
-          testID="message-button"
-        >
-=======
         <TouchableOpacity style={styles.messageButton} onPress={onMessage}>
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
           <Ionicons name="chatbubble-outline" size={20} color="#0A66C2" />
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
@@ -275,15 +241,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         </TouchableWithoutFeedback>
       </Modal>
 
-<<<<<<< HEAD
-      {showConfirmation && selectedTime && (
-        <ScheduleConfirmationModal
-          scheduledTime={selectedTime.time}
-          scheduledDate={selectedTime.date}
-          onClose={handleConfirmationClose}
-        />
-      )}
-=======
       <MeetingConfirmationModal
         visible={showConfirmation}
         onClose={handleConfirmationClose}
@@ -291,7 +248,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         scheduledTime={selectedTime ? selectedTime.time : ''}
         scheduledDate={selectedTime ? selectedTime.date.replace(/,? \d{4}/, '') : ''}
       />
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
     </View>
   );
 };
