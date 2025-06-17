@@ -1,34 +1,157 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
+import { postService, userService } from '../services/api';
+
+interface User {
+  id: string;
+  name: string;
+  current_location: string | null;
+}
+
+interface PostData {
+  id: string;
+  user_id: string;
+  post_text: string | null;
+  pic_link: string | null;
+  comments: string[] | null;
+  num_of_likes: number;
+  created_at?: string;
+}
 
 export const Feed = () => {
-  const mockPosts = [
-    {
-      name: 'Stanislav Naida',
-      title: 'Java Technical Lead — Ciklum',
-      timePosted: '16h',
-      content: 'Hello, I am looking for a new career opportunity and would appreciate your support. Thanks in advance for any contact recommendation, advice, or referral.',
-      likes: 77,
-      comments: 11,
-    },
-    {
-      name: 'Vera Drozdova',
-      title: 'UI/UX Designer',
-      timePosted: '17h',
-      content: 'Just finished designing a new Ferry app for Apple Watch! Check out the screens.',
-      likes: 45,
-      comments: 8,
-    },
-  ];
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [users, setUsers] = useState<Record<string, User>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newPostText, setNewPostText] = useState('');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      // Load posts and users in parallel
+      const [postsData, usersData] = await Promise.all([
+        postService.getAllPosts(),
+        userService.getAllUsers()
+      ]);
+
+      // Create a map of users by ID for easy lookup
+      const usersMap = usersData.reduce((acc: Record<string, User>, user: User) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      setPosts(postsData);
+      setUsers(usersMap);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load data');
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreatePost = async () => {
+    if (!newPostText.trim()) return;
+
+    try {
+      // TODO: Replace with actual user ID from authentication
+      const newPost = await postService.createPost({
+        user_id: 'test-user-id',
+        post_text: newPostText,
+      });
+      setPosts([newPost, ...posts]);
+      setNewPostText('');
+    } catch (err) {
+      console.error('Error creating post:', err);
+      setError('Failed to create post');
+    }
+  };
+
+  const handleLikePost = async (post: PostData) => {
+    try {
+      const updatedPost = await postService.updatePost(post.id, {
+        num_of_likes: (post.num_of_likes || 0) + 1,
+      });
+      setPosts(posts.map(p => p.id === post.id ? updatedPost : p));
+    } catch (err) {
+      console.error('Error liking post:', err);
+    }
+  };
+
+  const formatTimePosted = (created_at?: string) => {
+    if (!created_at) return 'Just now';
+
+    const now = new Date();
+    const postDate = new Date(created_at);
+    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`;
+    return postDate.toLocaleDateString();
+  };
+
+  if (loading) {
+    return (
+      <View style={feedStyles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0077B5" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={feedStyles.errorContainer}>
+        <Text style={feedStyles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={feedStyles.container}>
-      {mockPosts.map((post, index) => (
-        <Post key={index} {...post} />
-      ))}
-      <View style={feedStyles.bottomPadding} />
-    </ScrollView>
+    <View style={feedStyles.container}>
+      <View style={feedStyles.createPostContainer}>
+        <TextInput
+          style={feedStyles.input}
+          value={newPostText}
+          onChangeText={setNewPostText}
+          placeholder="What's on your mind?"
+          multiline
+        />
+        <TouchableOpacity
+          style={feedStyles.postButton}
+          onPress={handleCreatePost}
+          disabled={!newPostText.trim()}
+        >
+          <Text style={feedStyles.postButtonText}>Post</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView>
+        {posts.map((post) => {
+          const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
+          return (
+            <Post
+              key={post.id}
+              name={user.name}
+              title={user.current_location || 'No location'}
+              timePosted={formatTimePosted(post.created_at)}
+              content={post.post_text || ''}
+              likes={post.num_of_likes}
+              comments={post.comments?.length || 0}
+              onLike={() => handleLikePost(post)}
+              imageUrl={post.pic_link}
+            />
+          );
+        })}
+        <View style={feedStyles.bottomPadding} />
+      </ScrollView>
+    </View>
   );
 }; 

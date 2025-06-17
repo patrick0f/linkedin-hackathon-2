@@ -11,7 +11,7 @@ const port = process.env.PORT || 3002;
 
 // Enable CORS for the frontend
 app.use(cors({
-  origin: 'http://localhost:8082',
+  origin: ['http://localhost:8081', 'http://localhost:8082'], // Allow both ports
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type']
 }));

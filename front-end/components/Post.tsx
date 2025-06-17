@@ -10,9 +10,11 @@ interface PostProps {
   content: string;
   likes: number;
   comments: number;
+  onLike?: () => void;
+  imageUrl?: string | null;
 }
 
-export const Post = ({ name, title, timePosted, content, likes, comments }: PostProps) => {
+export const Post = ({ name, title, timePosted, content, likes, comments, onLike, imageUrl }: PostProps) => {
   return (
     <View style={postStyles.container}>
       <View style={postStyles.header}>
@@ -29,12 +31,20 @@ export const Post = ({ name, title, timePosted, content, likes, comments }: Post
 
       <Text style={postStyles.content}>{content}</Text>
 
+      {imageUrl && (
+        <Image
+          source={{ uri: imageUrl }}
+          style={postStyles.contentImage}
+          resizeMode="cover"
+        />
+      )}
+
       <View style={postStyles.stats}>
         <Text style={postStyles.statsText}>{likes} likes • {comments} comments</Text>
       </View>
 
       <View style={postStyles.actions}>
-        <TouchableOpacity style={postStyles.actionButton}>
+        <TouchableOpacity style={postStyles.actionButton} onPress={onLike}>
           <Ionicons name="thumbs-up-outline" size={20} color="#666" />
           <Text style={postStyles.actionText}>Like</Text>
         </TouchableOpacity>
