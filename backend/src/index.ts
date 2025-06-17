@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import userRoutes from './routes/users';
 
 dotenv.config();
@@ -7,6 +8,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3002;
 
+// Enable CORS for all routes
+app.use(cors());
+
+// Parse JSON bodies
 app.use(express.json());
 
 // Root endpoint
