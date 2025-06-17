@@ -22,16 +22,23 @@ interface MatchProfile {
 
 interface CoffeeChatSchedulerProps {
   onClose: () => void;
-  onNavigateToChat: (schedulerInfo: {
-    name: string;
-    time?: string;
-    date?: string;
-  }) => void;
+  contact: Contact;
+  error: string | null;
+  saving: boolean;
+}
+
+interface Contact {
+  name: string;
+  avatar: any;
+  status?: string;
+  userId: string;
 }
 
 const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   onClose,
-  onNavigateToChat
+  contact,
+  error,
+  saving
 }) => {
   const [selectedTime, setSelectedTime] = useState<{
     time: string;
@@ -87,10 +94,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   };
 
   const handleMessage = () => {
-    onNavigateToChat({
-      name: matchProfile.name,
-      ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
-    });
+    // Implement the logic to handle the message
   };
 
   return (

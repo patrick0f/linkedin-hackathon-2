@@ -5,6 +5,7 @@ import { saveUserAvailability } from '../lib/timeUtils';
 import { useUser } from '../contexts/UserContext';
 import CoffeeChatScheduler from './CoffeeChatScheduler';
 import ChatDetail from './ChatDetail';
+import { Ionicons } from '@expo/vector-icons';
 
 interface MatchProfile {
   id: string;
@@ -97,10 +98,19 @@ const CoffeeChats: React.FC = () => {
     }
   };
 
-  const handleNavigateToChat = (contact: MatchProfile) => {
+  const handleMessagePress = (contact: MatchProfile) => {
     setSelectedContact(contact);
-    setShowScheduler(false);
     setShowChat(true);
+  };
+
+  const handleSchedulePress = (contact: MatchProfile) => {
+    setSelectedContact(contact);
+    setShowScheduler(true);
+  };
+
+  const handleCloseScheduler = () => {
+    setShowScheduler(false);
+    setSelectedContact(null);
   };
 
   // Mock data - will be used later
@@ -132,6 +142,7 @@ const CoffeeChats: React.FC = () => {
           setShowChat(false);
           setShowScheduler(true);
         }}
+        isScheduler={true}
       />
     );
   }
@@ -139,14 +150,10 @@ const CoffeeChats: React.FC = () => {
   if (showScheduler && selectedContact) {
     return (
       <CoffeeChatScheduler
-        onClose={() => {
-          setShowScheduler(false);
-          setSelectedContact(null);
-        }}
-        onNavigateToChat={(schedulerInfo) => {
-          setShowScheduler(false);
-          setShowChat(true);
-        }}
+        contact={selectedContact}
+        onClose={handleCloseScheduler}
+        error={error}
+        saving={saving}
       />
     );
   }
@@ -280,16 +287,13 @@ const CoffeeChats: React.FC = () => {
           <View style={coffeeChatStyles.buttonContainer}>
             <TouchableOpacity
               style={coffeeChatStyles.scheduleButton}
-              onPress={() => {
-                setSelectedContact(match);
-                setShowScheduler(true);
-              }}
+              onPress={() => handleSchedulePress(match)}
             >
               <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Coffee Chat</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={coffeeChatStyles.messageButton}
-              onPress={() => handleNavigateToChat(match)}
+              onPress={() => handleMessagePress(match)}
             >
               <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
             </TouchableOpacity>

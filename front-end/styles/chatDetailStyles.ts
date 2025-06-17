@@ -61,17 +61,30 @@ export const chatDetailStyles = StyleSheet.create({
     borderRadius: 8,
     maxWidth: '80%',
   },
+  schedulerInfo: {
+    backgroundColor: '#f5f5f5',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
   schedulerContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  schedulerTextContainer: {
-    marginLeft: 12,
+  schedulerLeft: {
+    flex: 1,
+    marginRight: 16,
   },
   schedulerTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: '#0A66C2',
+    marginBottom: 4,
+  },
+  schedulerSubtitle: {
+    fontSize: 14,
+    color: '#666',
   },
   schedulerLink: {
     color: '#0A66C2',
@@ -119,5 +132,9 @@ export const chatDetailStyles = StyleSheet.create({
   },
   sendButton: {
     padding: 8,
+  },
+  schedulerTextContainer: {
+    marginLeft: 12,
+    flex: 1,
   },
 }); 

@@ -26,6 +26,7 @@ interface ChatDetailProps {
   contact: Contact;
   onClose: () => void;
   onScheduleChat: () => void;
+  isScheduler?: boolean;
 }
 
 // Different conversation starters based on the user's name
@@ -98,65 +99,41 @@ const FOLLOW_UP_MESSAGES: Record<Topic, string[]> = {
   ],
 };
 
-const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleChat }) => {
+const ChatDetail: React.FC<ChatDetailProps> = ({
+  contact,
+  onClose,
+  onScheduleChat,
+  isScheduler = false
+}) => {
   const [showOptions, setShowOptions] = useState(false);
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
-    // Generate a conversation based on the user's name
-    const nameSum = contact.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const topicIndex = nameSum % CONVERSATION_TEMPLATES.length;
-    const topic = CONVERSATION_TEMPLATES[topicIndex].topic;
-    
-    // Get conversation template
-    const template = CONVERSATION_TEMPLATES[topicIndex];
-    const initialMessage = template.messages[nameSum % template.messages.length];
-    const followUpMessage = FOLLOW_UP_MESSAGES[topic][nameSum % FOLLOW_UP_MESSAGES[topic].length];
+    // Prefill the input with a prewritten message, but do not send it
+    setNewMessage("Hi! I saw we have similar interests in technology and career development. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?");
+    setMessages([]);
+  }, [currentUser?.name]);
 
-    // Generate timestamps
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
+  const renderSchedulerInfo = () => {
+    if (!isScheduler) return null;
 
-    // Create conversation
-    const conversation: Message[] = [
-      {
-        id: '1',
-        text: initialMessage,
-        timestamp: `${hour-2}:${minute.toString().padStart(2, '0')}`,
-        sender: contact.name,
-      },
-      {
-        id: '2',
-        text: "Thanks for reaching out! I'd be happy to chat.",
-        timestamp: `${hour-2}:${(minute+5).toString().padStart(2, '0')}`,
-        sender: currentUser?.name || 'You',
-      },
-      {
-        id: '3',
-        text: followUpMessage,
-        timestamp: `${hour-1}:${minute.toString().padStart(2, '0')}`,
-        sender: contact.name,
-      },
-      {
-        id: '4',
-        isScheduler: true,
-        text: `Chat with ${contact.name}`,
-        timestamp: `${hour-1}:${(minute+2).toString().padStart(2, '0')}`,
-        sender: contact.name,
-      },
-      {
-        id: '5',
-        text: "Perfect! Looking forward to our chat.",
-        timestamp: `${hour}:${minute.toString().padStart(2, '0')}`,
-        sender: currentUser?.name || 'You',
-      },
-    ];
-
-    setMessages(conversation);
-  }, [contact.name, currentUser?.name]);
+    return (
+      <TouchableOpacity
+        style={chatDetailStyles.schedulerInfo}
+        onPress={onScheduleChat}
+      >
+        <View style={chatDetailStyles.schedulerContent}>
+          <View style={chatDetailStyles.schedulerLeft}>
+            <Text style={chatDetailStyles.schedulerTitle}>Schedule Coffee Chat</Text>
+            <Text style={chatDetailStyles.schedulerSubtitle}>Find a time that works for both of you</Text>
+          </View>
+          <Ionicons name="calendar-outline" size={24} color="#0A66C2" />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderOptionsBar = () => {
     if (!showOptions) return null;
@@ -221,6 +198,8 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
           )}
         </View>
       </View>
+
+      {renderSchedulerInfo()}
 
       <ScrollView style={chatDetailStyles.messageList}>
         {messages.map((message) => (
