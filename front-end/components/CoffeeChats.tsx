@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType, Modal } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
 import CoffeeChatScheduler from './CoffeeChatScheduler';
+import ChatDetail from './ChatDetail';
 
 interface MatchProfile {
   id: string;
@@ -26,6 +27,12 @@ const CoffeeChats: React.FC = () => {
   const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [schedulerInfo, setSchedulerInfo] = useState<{
+    name: string;
+    time?: string;
+    date?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (submittedAvailabilities.length > 0) {
@@ -72,6 +79,16 @@ const CoffeeChats: React.FC = () => {
     setShowCalendar(false);
   };
 
+  const handleNavigateToChat = (info: { name: string; time?: string; date?: string }) => {
+    setSchedulerInfo(info);
+    setShowScheduler(false);
+    setShowChat(true);
+  };
+
+  const handleMessageButtonClick = (match: MatchProfile) => {
+    handleNavigateToChat({ name: match.name });
+  };
+
   // Mock data - will be used later
   const matches: MatchProfile[] = [
     {
@@ -86,6 +103,22 @@ const CoffeeChats: React.FC = () => {
       availability: 'Weekdays 4-6pm',
     },
   ];
+
+  if (showChat && schedulerInfo) {
+    return (
+      <ChatDetail
+        onBack={() => {
+          setShowChat(false);
+          setShowScheduler(false);
+        }}
+        onNavigateToCoffeeChats={() => {
+          setShowChat(false);
+          setShowScheduler(true);
+        }}
+        schedulerInfo={schedulerInfo}
+      />
+    );
+  }
 
   if (showCalendar) {
     return (
@@ -209,7 +242,10 @@ const CoffeeChats: React.FC = () => {
               >
                 <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={coffeeChatStyles.messageButton}>
+              <TouchableOpacity 
+                style={coffeeChatStyles.messageButton}
+                onPress={() => handleMessageButtonClick(match)}
+              >
                 <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
               </TouchableOpacity>
             </View>
@@ -228,7 +264,7 @@ const CoffeeChats: React.FC = () => {
           <View style={{ height: '65%', backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' }}>
             <CoffeeChatScheduler 
               onClose={() => setShowScheduler(false)}
-              onMessage={() => { setShowScheduler(false); /* Optionally handle message action */ }}
+              onNavigateToChat={handleNavigateToChat}
             />
           </View>
         </View>

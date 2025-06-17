@@ -1,66 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { SimpleLineIcons } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { chatDetailStyles } from '../styles/chatDetailStyles';
 
-interface Message {
-  id: string;
-  text: string;
-  timestamp: string;
-  sender: string;
-  isScheduler?: boolean;
-}
-
 interface ChatDetailProps {
-  contact: {
+  onBack: () => void;
+  onNavigateToCoffeeChats: () => void;
+  schedulerInfo: {
     name: string;
-    avatar: any;
-    status?: string;
+    time?: string;
+    date?: string;
   };
-  onClose: () => void;
-  onScheduleChat: () => void;
 }
 
-const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleChat }) => {
+const ChatDetail: React.FC<ChatDetailProps> = ({
+  onBack,
+  onNavigateToCoffeeChats,
+  schedulerInfo,
+}) => {
+  const [message, setMessage] = React.useState(
+    "Hi! I saw we have similar interests in technology and career development. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?"
+  );
   const [showOptions, setShowOptions] = useState(false);
-  
-  // Mock messages - replace with actual messages later
-  const messages: Message[] = [
-    {
-      id: '1',
-      text: "Hey there! I'm Yuri, a CS student at Columbia, and I am interested in software engineering and have LinkedIn as a Top Company. We both have matching available times on Thursdays at 5:30. Would you be up to chat more about your role?",
-      timestamp: '7:00PM',
-      sender: 'Yuri Dud'
-    },
-    {
-      id: '2',
-      text: 'Ok, no problem.',
-      timestamp: '7:05PM',
-      sender: 'Timothy Hodges'
-    },
-    {
-      id: '3',
-      isScheduler: true,
-      text: 'Yuri meeting',
-      timestamp: '7:08PM',
-      sender: 'Yuri Dud'
-    },
-    {
-      id: '4',
-      text: 'Great! See you Wednesday.',
-      timestamp: '7:23PM',
-      sender: 'Timothy Hodges'
-    },
-    {
-      id: '5',
-      text: 'Sounds good. I am excited to hear about your experinece.',
-      timestamp: '7:37PM',
-      sender: 'Yuri Dud'
-    }
-  ];
 
   const renderOptionsBar = () => {
     if (!showOptions) return null;
@@ -97,108 +58,204 @@ const ChatDetail: React.FC<ChatDetailProps> = ({ contact, onClose, onScheduleCha
     ];
 
     return (
-      <View style={chatDetailStyles.optionsContainer}>
+      <View style={styles.optionsContainer}>
         {options.map((option, index) => (
           <TouchableOpacity
             key={index}
-            style={chatDetailStyles.optionItem}
+            style={styles.optionItem}
             onPress={() => setShowOptions(false)}
           >
             {option.icon}
-            <Text style={chatDetailStyles.optionText}>{option.label}</Text>
+            <Text style={styles.optionText}>{option.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
     );
   };
 
-  return (
-    <View style={chatDetailStyles.container}>
-      <View style={chatDetailStyles.header}>
-        <View style={chatDetailStyles.headerLeft}>
-          <TouchableOpacity onPress={onClose} style={chatDetailStyles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#666" />
-          </TouchableOpacity>
-          <Image source={contact.avatar} style={chatDetailStyles.avatar} />
-          <View style={chatDetailStyles.contactInfo}>
-            <Text style={chatDetailStyles.contactName}>{contact.name}</Text>
-            {contact.status && (
-              <Text style={chatDetailStyles.statusText}>{contact.status}</Text>
-            )}
+  const renderSchedulerMessage = () => {
+    if (!schedulerInfo.time || !schedulerInfo.date) return null;
+
+    return (
+      <View style={styles.schedulerMessage}>
+        <TouchableOpacity 
+          style={styles.schedulerMessageContent}
+          onPress={onNavigateToCoffeeChats}
+        >
+          <View style={styles.schedulerIcon}>
+            <Ionicons name="calendar" size={20} color="#0A66C2" />
           </View>
-        </View>
+          <View style={styles.schedulerTextContainer}>
+            <Text style={styles.schedulerTitle}>{schedulerInfo.name} Meeting</Text>
+            <Text style={styles.schedulerLink}>Coffee Chat Scheduler</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
-        <View style={chatDetailStyles.headIcons}>
-          <TouchableOpacity>
-            <Ionicons name="ellipsis-horizontal" size={24} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={onScheduleChat}>
-            <Ionicons name="calendar-outline" size={24} color="#666" />
-          </TouchableOpacity>
-        </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#666" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Chat</Text>
       </View>
 
-      <ScrollView style={chatDetailStyles.messageList}>
-        {messages.map((message) => (
-          <View 
-            key={message.id}
-            style={[
-              chatDetailStyles.messageContainer,
-              message.sender === 'Timothy Hodges' ? chatDetailStyles.sentMessage : chatDetailStyles.receivedMessage
-            ]}
-          >
-            {message.isScheduler ? (
-              <TouchableOpacity 
-                style={chatDetailStyles.schedulerContainer}
-                onPress={onScheduleChat}
-              >
-                <View style={chatDetailStyles.schedulerContent}>
-                  <Ionicons name="calendar" size={20} color="#0A66C2" />
-                  <View style={chatDetailStyles.schedulerTextContainer}>
-                    <Text style={chatDetailStyles.schedulerTitle}>{message.text}</Text>
-                    <Text 
-                      style={chatDetailStyles.schedulerLink}
-                      onPress={onScheduleChat}
-                    >
-                      Coffee Chat Scheduler
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ) : (
-              <>
-                <Text style={chatDetailStyles.messageText}>{message.text}</Text>
-                <Text style={chatDetailStyles.timestamp}>{message.timestamp}</Text>
-              </>
+      <TouchableOpacity
+        style={styles.schedulerInfo}
+        onPress={onNavigateToCoffeeChats}
+        testID="scheduler-info"
+      >
+        <View style={styles.schedulerContent}>
+          <View style={styles.schedulerLeft}>
+            <Text style={styles.schedulerTitle}>{schedulerInfo.name} Meeting</Text>
+            {schedulerInfo.time && schedulerInfo.date && (
+              <Text style={styles.schedulerTime}>
+                {schedulerInfo.time} on {schedulerInfo.date}
+              </Text>
             )}
           </View>
-        ))}
+          <Ionicons name="calendar-outline" size={24} color="#0A66C2" />
+        </View>
+      </TouchableOpacity>
+
+      <ScrollView style={styles.messageList}>
+        {renderSchedulerMessage()}
       </ScrollView>
 
-      <View>
-        {renderOptionsBar()}
-        <View style={chatDetailStyles.inputContainer}>
+      {renderOptionsBar()}
+
+      <View style={styles.inputContainer}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            placeholder="Write a message..."
+            testID="message-input"
+          />
           <TouchableOpacity 
-            style={chatDetailStyles.sendButton}
+            style={styles.attachButton}
             onPress={() => setShowOptions(!showOptions)}
           >
-            <SimpleLineIcons name="paper-clip" size={24} color="#666" />
-          </TouchableOpacity>
-
-          <TextInput
-            style={chatDetailStyles.input}
-            placeholder="Write a message..."
-            placeholderTextColor="#666"
-            multiline
-          />
-          <TouchableOpacity style={chatDetailStyles.sendButton}>
-            <Ionicons name="send" size={24} color="#0A66C2" />
+            <Ionicons name="attach" size={24} color="#666" />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.sendButton}>
+          <Ionicons name="send" size={24} color="#0A66C2" />
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  ...chatDetailStyles,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  schedulerInfo: {
+    backgroundColor: '#F3F6F8',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  schedulerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  schedulerLeft: {
+    flex: 1,
+  },
+  schedulerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 4,
+  },
+  schedulerTime: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  messageList: {
+    flex: 1,
+  },
+  schedulerMessage: {
+    padding: 12,
+    marginBottom: 8,
+  },
+  schedulerMessageContent: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F6F8',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  schedulerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E8F0FE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  schedulerTextContainer: {
+    flex: 1,
+  },
+  schedulerLink: {
+    color: '#0A66C2',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  optionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    paddingVertical: 8,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  optionText: {
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#666666',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    backgroundColor: '#F3F6F8',
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+  },
+  attachButton: {
+    padding: 12,
+  },
+  sendButton: {
+    padding: 8,
+  },
+});
 
 export default ChatDetail; 

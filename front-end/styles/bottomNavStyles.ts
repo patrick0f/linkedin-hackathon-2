@@ -9,18 +9,24 @@ export const bottomNavStyles = StyleSheet.create({
     paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
-  tab: {
+  navItem: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 8,
   },
-  tabText: {
+  activeNavItem: {
+    borderTopWidth: 2,
+    borderTopColor: '#0A66C2',
+    marginTop: -2,
+  },
+  navLabel: {
     fontSize: 12,
-    marginTop: 4,
     color: '#666',
+    marginTop: 4,
+  },
+  activeNavLabel: {
+    color: '#0A66C2',
+    fontWeight: '600',
   },
 }); 

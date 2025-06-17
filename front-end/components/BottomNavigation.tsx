@@ -1,37 +1,54 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
 import { bottomNavStyles } from '../styles/bottomNavStyles';
 
-export const BottomNavigation = () => {
+type Screen = 'feed' | 'messages' | 'network' | 'jobs' | 'notifications';
+
+interface BottomNavigationProps {
+  currentScreen: Screen;
+  onNavigate: (screen: Screen) => void;
+}
+
+export const BottomNavigation: React.FC<BottomNavigationProps> = ({
+  currentScreen,
+  onNavigate,
+}) => {
+  const navigationItems = [
+    { name: 'feed', icon: 'home-sharp', label: 'Home' },
+    { name: 'messages', icon: 'logo-youtube', label: 'Video' },
+    { name: 'network', icon: 'people-sharp', label: 'My Network' },
+    { name: 'notifications', icon: 'notifications-sharp', label: 'Notifications' },
+    { name: 'jobs', icon: 'briefcase', label: 'Jobs' },
+  ] as const;
+
   return (
     <View style={bottomNavStyles.container}>
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="home" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>Home</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <FontAwesome name="youtube-play" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>Video</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="people" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>My Network</Text>
-      </TouchableOpacity>
-  
-      
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="notifications" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>Notifications</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="briefcase" size={24} color="#666" />
-        <Text style={bottomNavStyles.tabText}>Jobs</Text>
-      </TouchableOpacity>
+      {navigationItems.map((item) => (
+        <TouchableOpacity
+          key={item.name}
+          style={[
+            bottomNavStyles.navItem,
+            currentScreen === item.name && bottomNavStyles.activeNavItem,
+          ]}
+          onPress={() => onNavigate(item.name)}
+          testID={`nav-${item.name}`}
+        >
+          <Ionicons
+            name={item.icon}
+            size={24}
+            color={currentScreen === item.name ? '#0A66C2' : '#666'}
+          />
+          <Text
+            style={[
+              bottomNavStyles.navLabel,
+              currentScreen === item.name && bottomNavStyles.activeNavLabel,
+            ]}
+          >
+            {item.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }; 

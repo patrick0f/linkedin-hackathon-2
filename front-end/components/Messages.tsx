@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { messagesStyles } from '../styles/messagesStyles';
-import CoffeeChats  from './CoffeeChats';
+import CoffeeChats from './CoffeeChats';
 import ChatDetail from './ChatDetail';
 
 const MESSAGES = [
@@ -52,31 +52,38 @@ const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread', 'Drafts', '
 
 export const Messages = ({ onClose }: { onClose: () => void }) => {
   const [activeFilter, setActiveFilter] = useState('Focused');
-  const [selectedChat, setSelectedChat] = useState<null | {
+  const [selectedChat, setSelectedChat] = useState<{
     name: string;
-    avatar: any;
-    status?: string;
-  }>(null);
+    time?: string;
+    date?: string;
+  } | null>(null);
+  const [showCoffeeChats, setShowCoffeeChats] = useState(false);
 
   const handleChatPress = (message: any) => {
     setSelectedChat({
       name: message.name,
-      avatar: message.avatar,
-      status: message.online ? 'Online' : undefined,
     });
   };
 
-  const handleScheduleChat = () => {
-    setActiveFilter('Coffee Chats');
+  const handleBackToMessages = () => {
     setSelectedChat(null);
+    setShowCoffeeChats(false);
   };
+
+  const handleNavigateToCoffeeChats = () => {
+    setShowCoffeeChats(true);
+  };
+
+  if (showCoffeeChats) {
+    return <CoffeeChats />;
+  }
 
   if (selectedChat) {
     return (
       <ChatDetail
-        contact={selectedChat}
-        onClose={() => setSelectedChat(null)}
-        onScheduleChat={handleScheduleChat}
+        onBack={handleBackToMessages}
+        onNavigateToCoffeeChats={handleNavigateToCoffeeChats}
+        schedulerInfo={selectedChat}
       />
     );
   }

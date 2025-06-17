@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
+import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 
 interface TimeSlot {
   date: string;
@@ -21,44 +22,62 @@ interface MatchProfile {
 
 interface CoffeeChatSchedulerProps {
   onClose: () => void;
-  onMessage: () => void;
+  onNavigateToChat: (schedulerInfo: {
+    name: string;
+    time?: string;
+    date?: string;
+  }) => void;
 }
 
-const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMessage }) => {
+const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
+  onClose,
+  onNavigateToChat
+}) => {
   const [selectedTime, setSelectedTime] = useState<{
     time: string;
     date: string;
   } | null>(null);
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Mock data - replace with actual data later
   const matchProfile: MatchProfile = {
-    name: 'Thomas Simmons',
-    title: 'Product Designer',
-    company: 'Figma',
-    location: 'San Francisco, CA',
+    name: "Thomas Simmons",
+    title: "Product Designer",
+    company: "Figma",
+    location: "San Francisco, CA",
     avatar: require('../assets/default-profile.png'),
-    careerInterests: ['Product Strategy', 'UX Design', 'Agile Methodology'],
-    personalInterests: ['Soccer', 'hiking', 'non-fiction books'],
+    careerInterests: ["Product Strategy", "UX Design", "Agile Methodology"],
+    personalInterests: ["Soccer", "hiking", "non-fiction books"],
     availableTimes: [
       {
-        date: 'Friday June 27, 2025',
-        slots: ['4:00 PM - 4:30 PM', '5:30 PM - 6:00 PM']
+        date: "Monday, Mar 18",
+        slots: ["9:00 AM", "10:00 AM", "2:00 PM"]
       },
       {
-        date: 'Tuesday July 1, 2025',
-        slots: ['1:15 PM - 1:45 PM']
-      },
-      {
-        date: 'Wednesday July 2, 2025',
-        slots: ['1:15 PM - 1:45 PM', '5:45 PM - 6:15 PM', '6:15 PM - 6:45 PM']
-      },
-      {
-        date: 'Monday July 7, 2025',
-        slots: ['10:00 AM - 10:30 AM']
+        date: "Tuesday, Mar 19",
+        slots: ["11:00 AM", "3:00 PM", "4:00 PM"]
       }
     ]
+  };
+
+  const handleTimeSelect = (time: string, date: string) => {
+    setSelectedTime({ time, date });
+    setShowConfirmation(true);
+  };
+
+  const handleMessage = () => {
+    onNavigateToChat({
+      name: matchProfile.name,
+      ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
+    });
+  };
+
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setSelectedTime(null);
+    onClose();
   };
 
   return (
@@ -112,7 +131,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
                     styles.timeSlot,
                     selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
                   ]}
-                  onPress={() => setSelectedTime({ time: slot, date: timeSlot.date })}
+                  onPress={() => handleTimeSelect(slot, timeSlot.date)}
                 >
                   <Text style={[
                     styles.timeSlotText,
@@ -131,12 +150,15 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
         <TouchableOpacity 
           style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
           disabled={!selectedTime}
-          onPress={() => setShowMeetingModal(true)}
         >
           <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
           <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.messageButton} onPress={onMessage}>
+        <TouchableOpacity 
+          style={styles.messageButton} 
+          onPress={handleMessage}
+          testID="message-button"
+        >
           <Ionicons name="chatbubble-outline" size={20} color="#0A66C2" />
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
@@ -201,6 +223,14 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      {showConfirmation && selectedTime && (
+        <ScheduleConfirmationModal
+          scheduledTime={selectedTime.time}
+          scheduledDate={selectedTime.date}
+          onClose={handleConfirmationClose}
+        />
+      )}
     </View>
   );
 };
