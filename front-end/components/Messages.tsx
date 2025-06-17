@@ -60,35 +60,71 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
     return (
       <ScrollView style={messagesStyles.messagesList}>
         {MESSAGES.map((message) => (
-          <TouchableOpacity key={message.id} style={messagesStyles.messageItem}>
-            <View style={messagesStyles.avatarContainer}>
-              <Image source={message.avatar} style={messagesStyles.avatar} />
-              {message.online && <View style={messagesStyles.onlineIndicator} />}
+          <TouchableOpacity 
+            key={message.id} 
+            style={messagesStyles.messageItem}
+            testID={`message-item-${message.id}`}
+          >
+            <View style={messagesStyles.avatarContainer} testID="avatar-container">
+              <Image 
+                source={message.avatar} 
+                style={messagesStyles.avatar}
+                testID="avatar-image" 
+              />
+              {message.online && (
+                <View 
+                  style={messagesStyles.onlineIndicator}
+                  testID="online-indicator" 
+                />
+              )}
               {message.hiring && (
-                <View style={messagesStyles.hiringBadge}>
-                  <Text style={messagesStyles.hiringText}>HIRING</Text>
+                <View 
+                  style={messagesStyles.hiringBadge}
+                  testID="hiring-badge"
+                >
+                  <Text 
+                    style={messagesStyles.hiringText}
+                    testID="hiring-text"
+                  >
+                    HIRING
+                  </Text>
                 </View>
               )}
             </View>
-            <View style={messagesStyles.messageContent}>
-              <View style={messagesStyles.messageHeader}>
-                <Text style={messagesStyles.name}>{message.name}</Text>
-                <Text style={messagesStyles.time}>{message.time}</Text>
+            <View style={messagesStyles.messageContent} testID="message-content">
+              <View style={messagesStyles.messageHeader} testID="message-header">
+                <Text style={messagesStyles.name} testID="message-name">
+                  {message.name}
+                </Text>
+                <Text style={messagesStyles.time} testID="message-time">
+                  {message.time}
+                </Text>
               </View>
-              <View style={messagesStyles.messagePreview}>
+              <View style={messagesStyles.messagePreview} testID="message-preview">
                 {message.isInMail && (
-                  <Text style={messagesStyles.inMailBadge}>InMail</Text>
+                  <Text 
+                    style={messagesStyles.inMailBadge}
+                    testID="inmail-badge"
+                  >
+                    InMail
+                  </Text>
                 )}
                 <Text
                   style={[
                     messagesStyles.messageText,
                     message.unread && messagesStyles.unreadMessage,
                   ]}
+                  testID={message.unread ? 'message-text-unread' : 'message-text'}
                   numberOfLines={1}
                 >
                   {message.message}
                 </Text>
-                {message.unread && <View style={messagesStyles.unreadDot} />}
+                {message.unread && (
+                  <View 
+                    style={messagesStyles.unreadDot}
+                    testID="unread-dot" 
+                  />
+                )}
               </View>
             </View>
           </TouchableOpacity>
