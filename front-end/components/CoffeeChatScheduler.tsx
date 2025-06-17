@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
+import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 
 interface TimeSlot {
   date: string;
@@ -25,6 +26,12 @@ interface CoffeeChatSchedulerProps {
 }
 
 const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMessage }) => {
+  const [selectedTime, setSelectedTime] = useState<{
+    time: string;
+    date: string;
+  } | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
   // Mock data - replace with actual data later
   const matchProfile: MatchProfile = {
     name: 'Thomas Simmons',
@@ -52,6 +59,17 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
         slots: ['10:00 AM - 10:30 AM']
       }
     ]
+  };
+
+  const handleTimeSelect = (time: string, date: string) => {
+    setSelectedTime({ time, date });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setSelectedTime(null);
+    onClose();
   };
 
   return (
@@ -99,7 +117,21 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
             <View key={dateIndex} style={styles.dateGroup}>
               <Text style={styles.dateText}>{timeSlot.date}</Text>
               {timeSlot.slots.map((slot, slotIndex) => (
-                <Text key={slotIndex} style={styles.timeSlot}>{slot}</Text>
+                <TouchableOpacity
+                  key={slotIndex}
+                  style={[
+                    styles.timeSlot,
+                    selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
+                  ]}
+                  onPress={() => handleTimeSelect(slot, timeSlot.date)}
+                >
+                  <Text style={[
+                    styles.timeSlotText,
+                    selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlotText
+                  ]}>
+                    {slot}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
           ))}
@@ -107,7 +139,10 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.scheduleButton}>
+        <TouchableOpacity 
+          style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
+          disabled={!selectedTime}
+        >
           <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
           <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
         </TouchableOpacity>
@@ -116,6 +151,14 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({ onClose, onMe
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
       </View>
+
+      {showConfirmation && selectedTime && (
+        <ScheduleConfirmationModal
+          scheduledTime={selectedTime.time}
+          scheduledDate={selectedTime.date}
+          onClose={handleConfirmationClose}
+        />
+      )}
     </View>
   );
 };
@@ -225,13 +268,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   timeSlot: {
-    fontSize: 14,
-    color: '#666666',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 8,
     marginBottom: 8,
+  },
+  selectedTimeSlot: {
+    backgroundColor: '#0A66C2',
+  },
+  timeSlotText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  selectedTimeSlotText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
@@ -273,6 +325,9 @@ const styles = StyleSheet.create({
     color: '#0A66C2',
     fontSize: 16,
     fontWeight: '600',
+  },
+  scheduleButtonDisabled: {
+    opacity: 0.5,
   },
 });
 
