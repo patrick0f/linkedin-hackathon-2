@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-<<<<<<< HEAD
 import ScheduleConfirmationModal from './ScheduleConfirmationModal';
-=======
-import { Image as RNImage } from 'react-native';
-import MeetingConfirmationModal from './MeetingConfirmationModal';
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface TimeSlot {
   date: string;
@@ -45,7 +40,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Mock data - replace with actual data later
   const matchProfile: MatchProfile = {
@@ -68,33 +62,21 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     ]
   };
 
-<<<<<<< HEAD
-  const handleTimeSelect = (time: string, date: string) => {
-    setSelectedTime({ time, date });
-    setShowConfirmation(true);
+  const handleTimeSlotPress = (slot: string, date: string) => {
+    setSelectedTime({ time: slot, date });
+    setShowMeetingModal(true);
   };
 
-  const handleMessage = () => {
-    onNavigateToChat({
-      name: matchProfile.name,
-      ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
-    });
-=======
   const handleScheduleMeeting = () => {
     setShowMeetingModal(false);
     // Small delay to ensure smooth transition
     setTimeout(() => {
       setShowConfirmation(true);
     }, 100);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
   };
 
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
-<<<<<<< HEAD
-    setSelectedTime(null);
-    onClose();
-=======
     setShowMeetingModal(false);
     setSelectedTime(null);
     setGreeting('Hi Thomas, looking forward to our coffee chat!');
@@ -104,10 +86,11 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     }, 100);
   };
 
-  const handleTimeSlotPress = (slot: string, date: string) => {
-    setSelectedTime({ time: slot, date });
-    setShowMeetingModal(true);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
+  const handleMessage = () => {
+    onNavigateToChat({
+      name: matchProfile.name,
+      ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
+    });
   };
 
   return (
@@ -161,11 +144,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                     styles.timeSlot,
                     selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
                   ]}
-<<<<<<< HEAD
-                  onPress={() => handleTimeSelect(slot, timeSlot.date)}
-=======
                   onPress={() => handleTimeSlotPress(slot, timeSlot.date)}
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
                 >
                   <Text style={[
                     styles.timeSlotText,
@@ -181,10 +160,10 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
       </ScrollView>
 
       <View style={styles.footer}>
-<<<<<<< HEAD
         <TouchableOpacity 
           style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
           disabled={!selectedTime}
+          onPress={handleScheduleMeeting}
         >
           <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
           <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
@@ -194,9 +173,6 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
           onPress={handleMessage}
           testID="message-button"
         >
-=======
-        <TouchableOpacity style={styles.messageButton} onPress={onMessage}>
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
           <Ionicons name="chatbubble-outline" size={20} color="#0A66C2" />
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
@@ -209,65 +185,40 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         onRequestClose={() => setShowMeetingModal(false)}
       >
         <TouchableWithoutFeedback onPress={() => setShowMeetingModal(false)}>
-          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)'}}>
+          <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback onPress={() => {}}>
               <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={{ height: '65%', backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden', padding: 24, alignItems: 'center' }}
+                style={styles.modalContent}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 12 }}>
-                  <Image source={matchProfile.avatar} style={{ width: 48, height: 48, borderRadius: 24, marginRight: 16 }} />
-                  <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                <View style={styles.modalHeader}>
+                  <Image source={matchProfile.avatar} style={styles.modalAvatar} />
+                  <Text style={styles.modalTitle}>
                     Coffee chat with{"\n"}
-                    <Text style={{ fontWeight: '700' }}>{matchProfile.name}</Text>
+                    <Text style={styles.modalTitleBold}>{matchProfile.name}</Text>
                   </Text>
                 </View>
-                <Text style={{ fontSize: 16, color: '#666', marginBottom: 24, width: '100%' }}>
+                <Text style={styles.modalTime}>
                   {selectedTime ? `${selectedTime.date.replace(/,? \d{4}/, '')}, ${selectedTime.time}` : 'Select a time slot above'}
                 </Text>
-                <View style={{ width: '100%', position: 'relative', marginBottom: 24 }}>
+                <View style={styles.modalInputContainer}>
                   <TextInput
-                    style={{
-                      width: '100%',
-                      minHeight: 80,
-                      borderColor: '#E0E0E0',
-                      borderWidth: 1,
-                      borderRadius: 12,
-                      padding: 16,
-                      fontSize: 16,
-                      backgroundColor: '#F5F5F5',
-                      textAlignVertical: 'top',
-                      paddingRight: 40, // space for the icon
-                    }}
+                    style={styles.modalInput}
                     multiline
                     value={greeting}
                     onChangeText={setGreeting}
                   />
-                  <RNImage
+                  <Image
                     source={require('../assets/ai-generated.png')}
-                    style={{
-                      position: 'absolute',
-                      width: 22,
-                      height: 22,
-                      right: 12,
-                      bottom: 12,
-                    }}
+                    style={styles.aiIcon}
                     accessibilityLabel="AI generated"
                   />
                 </View>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#0A66C2',
-                    paddingVertical: 16,
-                    paddingHorizontal: 32,
-                    borderRadius: 24,
-                    alignItems: 'center',
-                    width: '100%',
-                    marginTop: 0,
-                  }}
+                <TouchableOpacity 
+                  style={styles.modalScheduleButton}
                   onPress={handleScheduleMeeting}
                 >
-                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Schedule meeting</Text>
+                  <Text style={styles.modalScheduleButtonText}>Schedule Coffee Chat</Text>
                 </TouchableOpacity>
               </KeyboardAvoidingView>
             </TouchableWithoutFeedback>
@@ -275,23 +226,13 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         </TouchableWithoutFeedback>
       </Modal>
 
-<<<<<<< HEAD
-      {showConfirmation && selectedTime && (
-        <ScheduleConfirmationModal
-          scheduledTime={selectedTime.time}
-          scheduledDate={selectedTime.date}
-          onClose={handleConfirmationClose}
-        />
-      )}
-=======
-      <MeetingConfirmationModal
+      <ScheduleConfirmationModal
         visible={showConfirmation}
         onClose={handleConfirmationClose}
-        matchProfile={matchProfile}
-        scheduledTime={selectedTime ? selectedTime.time : ''}
-        scheduledDate={selectedTime ? selectedTime.date.replace(/,? \d{4}/, '') : ''}
+        name={matchProfile.name}
+        time={selectedTime?.time}
+        date={selectedTime?.date}
       />
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
     </View>
   );
 };
@@ -314,19 +255,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    marginRight: 12,
+    marginRight: 16,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#000000',
   },
   content: {
     flex: 1,
   },
   profileSection: {
-    flexDirection: 'row',
     padding: 16,
+    flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
@@ -334,29 +274,27 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginRight: 12,
+    marginRight: 16,
   },
   profileInfo: {
     flex: 1,
-    justifyContent: 'center',
   },
   name: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#000000',
     marginBottom: 4,
   },
   degree: {
-    color: '#666666',
+    color: '#666',
   },
   title: {
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 16,
+    color: '#666',
     marginBottom: 2,
   },
   location: {
     fontSize: 14,
-    color: '#666666',
+    color: '#666',
   },
   interestsSection: {
     padding: 16,
@@ -369,13 +307,11 @@ const styles = StyleSheet.create({
   interestLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000000',
     marginBottom: 4,
   },
   interestText: {
     fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
+    color: '#666',
   },
   availabilitySection: {
     padding: 16,
@@ -388,22 +324,19 @@ const styles = StyleSheet.create({
   availabilityTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
     marginLeft: 8,
   },
   dateGroup: {
     marginBottom: 16,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#000000',
     marginBottom: 8,
   },
   timeSlot: {
-    backgroundColor: '#F5F5F5',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: '#F3F6F8',
+    padding: 12,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -412,34 +345,123 @@ const styles = StyleSheet.create({
   },
   timeSlotText: {
     fontSize: 14,
-    color: '#666666',
+    color: '#666',
   },
   selectedTimeSlotText: {
     color: '#FFFFFF',
-    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    gap: 12,
   },
-  messageButton: {
+  scheduleButton: {
     flex: 1,
+    backgroundColor: '#0A66C2',
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#0A66C2',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    padding: 12,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  scheduleButtonDisabled: {
+    backgroundColor: '#B2B2B2',
+  },
+  scheduleButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  messageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#0A66C2',
   },
   messageButtonText: {
     color: '#0A66C2',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  modalContent: {
+    height: '65%',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+    padding: 24,
+    alignItems: 'center',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  modalAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  modalTitleBold: {
+    fontWeight: '700',
+  },
+  modalTime: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 24,
+    width: '100%',
+  },
+  modalInputContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 24,
+  },
+  modalInput: {
+    width: '100%',
+    minHeight: 80,
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    backgroundColor: '#F5F5F5',
+    textAlignVertical: 'top',
+    paddingRight: 40,
+  },
+  aiIcon: {
+    position: 'absolute',
+    width: 22,
+    height: 22,
+    right: 12,
+    bottom: 12,
+  },
+  modalScheduleButton: {
+    width: '100%',
+    backgroundColor: '#0A66C2',
+    padding: 16,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  modalScheduleButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

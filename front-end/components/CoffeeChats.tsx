@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
 import { saveUserAvailability } from '../lib/timeUtils';
 import { useUser } from '../contexts/UserContext';
@@ -12,10 +12,11 @@ interface MatchProfile {
   title: string;
   company: string;
   location: string;
-  profileImage: any;
+  avatar: any;
   careerInterests: string[];
   personalInterests: string[];
   availability: string;
+  userId: string;
 }
 
 interface TimeSlot {
@@ -30,17 +31,10 @@ const CoffeeChats: React.FC = () => {
   const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showScheduler, setShowScheduler] = useState(false);
-<<<<<<< HEAD
   const [showChat, setShowChat] = useState(false);
-  const [schedulerInfo, setSchedulerInfo] = useState<{
-    name: string;
-    time?: string;
-    date?: string;
-  } | null>(null);
-=======
-  const [saving, setSaving] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<MatchProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (submittedAvailabilities.length > 0) {
@@ -50,7 +44,7 @@ const CoffeeChats: React.FC = () => {
 
   // Static weekdays array
   const weekDays = [
-    { dayName: 'Mon', dayNumber: 0 }, // Changed to 0-based index to match our time utils
+    { dayName: 'Mon', dayNumber: 0 },
     { dayName: 'Tue', dayNumber: 1 },
     { dayName: 'Wed', dayNumber: 2 },
     { dayName: 'Thu', dayNumber: 3 },
@@ -103,43 +97,56 @@ const CoffeeChats: React.FC = () => {
     }
   };
 
-  const handleNavigateToChat = (info: { name: string; time?: string; date?: string }) => {
-    setSchedulerInfo(info);
+  const handleNavigateToChat = (contact: MatchProfile) => {
+    setSelectedContact(contact);
     setShowScheduler(false);
     setShowChat(true);
-  };
-
-  const handleMessageButtonClick = (match: MatchProfile) => {
-    handleNavigateToChat({ name: match.name });
   };
 
   // Mock data - will be used later
   const matches: MatchProfile[] = [
     {
       id: '1',
+      userId: '1',
       name: 'Thomas Simmons',
       title: 'Product Designer',
       company: 'Figma',
       location: 'San Francisco, CA',
-      profileImage: require('../assets/default-profile.png'),
+      avatar: require('../assets/default-profile.png'),
       careerInterests: ['Product Strategy', 'UX Design', 'Agile Methodology'],
       personalInterests: ['Soccer', 'hiking', 'non-fiction books'],
       availability: 'Weekdays 4-6pm',
     },
   ];
 
-  if (showChat && schedulerInfo) {
+  if (showChat && selectedContact) {
     return (
       <ChatDetail
-        onBack={() => {
+        contact={selectedContact}
+        onClose={() => {
           setShowChat(false);
           setShowScheduler(false);
+          setSelectedContact(null);
         }}
-        onNavigateToCoffeeChats={() => {
+        onScheduleChat={() => {
           setShowChat(false);
           setShowScheduler(true);
         }}
-        schedulerInfo={schedulerInfo}
+      />
+    );
+  }
+
+  if (showScheduler && selectedContact) {
+    return (
+      <CoffeeChatScheduler
+        onClose={() => {
+          setShowScheduler(false);
+          setSelectedContact(null);
+        }}
+        onNavigateToChat={(schedulerInfo) => {
+          setShowScheduler(false);
+          setShowChat(true);
+        }}
       />
     );
   }
@@ -242,7 +249,7 @@ const CoffeeChats: React.FC = () => {
       {matches.map(match => (
         <View key={match.id} style={coffeeChatStyles.matchCard}>
           <View style={coffeeChatStyles.profileSection}>
-            <Image source={match.profileImage} style={coffeeChatStyles.profileImage} />
+            <Image source={match.avatar} style={coffeeChatStyles.profileImage} />
             <View style={coffeeChatStyles.profileInfo}>
               <Text style={coffeeChatStyles.name}>{match.name}</Text>
               <Text style={coffeeChatStyles.title}>{match.title} at {match.company}</Text>
@@ -254,56 +261,41 @@ const CoffeeChats: React.FC = () => {
             <View style={coffeeChatStyles.interestGroup}>
               <Text style={coffeeChatStyles.interestLabel}>Career Interests</Text>
               <Text style={coffeeChatStyles.interestText}>
-                {match.careerInterests.join(' • ')}
+                {match.careerInterests.join(', ')}
               </Text>
             </View>
             <View style={coffeeChatStyles.interestGroup}>
               <Text style={coffeeChatStyles.interestLabel}>Personal Interests</Text>
               <Text style={coffeeChatStyles.interestText}>
-                {match.personalInterests.join(' • ')}
+                {match.personalInterests.join(', ')}
               </Text>
             </View>
           </View>
 
           <View style={coffeeChatStyles.availabilitySection}>
-            <View style={coffeeChatStyles.availabilityInfo}>
-              <Text style={coffeeChatStyles.availabilityLabel}>Availability:</Text>
-              <Text style={coffeeChatStyles.availabilityText}>{match.availability}</Text>
-            </View>
-            <View style={coffeeChatStyles.buttonContainer}>
-              <TouchableOpacity 
-                style={coffeeChatStyles.scheduleButton}
-                onPress={() => setShowScheduler(true)}
-              >
-                <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={coffeeChatStyles.messageButton}
-                onPress={() => handleMessageButtonClick(match)}
-              >
-                <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={coffeeChatStyles.availabilityLabel}>Availability</Text>
+            <Text style={coffeeChatStyles.availabilityText}>{match.availability}</Text>
+          </View>
+
+          <View style={coffeeChatStyles.buttonContainer}>
+            <TouchableOpacity
+              style={coffeeChatStyles.scheduleButton}
+              onPress={() => {
+                setSelectedContact(match);
+                setShowScheduler(true);
+              }}
+            >
+              <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Coffee Chat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={coffeeChatStyles.messageButton}
+              onPress={() => handleNavigateToChat(match)}
+            >
+              <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
+            </TouchableOpacity>
           </View>
         </View>
       ))}
-
-      {/* Bottom Sheet Modal for Scheduler */}
-      <Modal
-        visible={showScheduler}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowScheduler(false)}
-      >
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)' }}>
-          <View style={{ height: '65%', backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' }}>
-            <CoffeeChatScheduler 
-              onClose={() => setShowScheduler(false)}
-              onNavigateToChat={handleNavigateToChat}
-            />
-          </View>
-        </View>
-      </Modal>
     </ScrollView>
   );
 };

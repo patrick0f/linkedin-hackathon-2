@@ -3,11 +3,8 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
-<<<<<<< HEAD
 import PostPointsPopup from './PostPointsPopup';
-=======
 import { useUser } from '../contexts/UserContext';
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface User {
   id: string;
@@ -133,7 +130,6 @@ export const Feed = () => {
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
-<<<<<<< HEAD
         <ScrollView style={feedStyles.scrollView}>
           <View style={feedStyles.createPostContainer}>
             <TextInput
@@ -144,7 +140,10 @@ export const Feed = () => {
               multiline
             />
             <TouchableOpacity
-              style={feedStyles.postButton}
+              style={[
+                feedStyles.postButton,
+                !newPostText.trim() && feedStyles.postButtonDisabled
+              ]}
               onPress={handleCreatePost}
               disabled={!newPostText.trim()}
               testID="post-button"
@@ -152,26 +151,7 @@ export const Feed = () => {
               <Text style={feedStyles.postButtonText}>Post</Text>
             </TouchableOpacity>
           </View>
-=======
-        <View style={feedStyles.createPostContainer}>
-          <TextInput
-            style={feedStyles.input}
-            value={newPostText}
-            onChangeText={setNewPostText}
-            placeholder="What's on your mind?"
-            multiline
-          />
-          <TouchableOpacity
-            style={feedStyles.postButton}
-            onPress={handleCreatePost}
-            disabled={!newPostText.trim()}
-          >
-            <Text style={feedStyles.postButtonText}>Post</Text>
-          </TouchableOpacity>
-        </View>
->>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
-        <ScrollView style={feedStyles.scrollView}>
           {posts.map((post) => {
             const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
             return (

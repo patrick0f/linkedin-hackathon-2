@@ -1,37 +1,50 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ScheduleConfirmationModalProps {
+  visible: boolean;
   onClose: () => void;
-  scheduledTime: string;
-  scheduledDate: string;
+  name: string;
+  time?: string;
+  date?: string;
 }
 
 const ScheduleConfirmationModal: React.FC<ScheduleConfirmationModalProps> = ({
+  visible,
   onClose,
-  scheduledTime,
-  scheduledDate,
+  name,
+  time,
+  date,
 }) => {
-  return (
-    <View style={styles.overlay}>
-      <View style={styles.modal}>
-        <View style={styles.iconContainer}>
-          <View style={styles.iconCircle}>
-            <Ionicons name="checkmark" size={40} color="#FFFFFF" />
-          </View>
-        </View>
-        
-        <Text style={styles.title}>Coffee Chat Scheduled!</Text>
-        <Text style={styles.details}>
-          Your coffee chat has been scheduled for {scheduledTime} on {scheduledDate}
-        </Text>
+  if (!visible) return null;
 
-        <TouchableOpacity style={styles.button} onPress={onClose}>
-          <Text style={styles.buttonText}>Done</Text>
-        </TouchableOpacity>
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.modal}>
+          <View style={styles.iconContainer}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="checkmark" size={40} color="#FFFFFF" />
+            </View>
+          </View>
+          
+          <Text style={styles.title}>Coffee Chat Scheduled!</Text>
+          <Text style={styles.details}>
+            Your coffee chat with {name} has been scheduled for {time} on {date}
+          </Text>
+
+          <TouchableOpacity style={styles.button} onPress={onClose}>
+            <Text style={styles.buttonText}>Done</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 };
 
