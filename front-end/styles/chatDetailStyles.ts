@@ -133,8 +133,107 @@ export const chatDetailStyles = StyleSheet.create({
   sendButton: {
     padding: 8,
   },
+  regenerateButton: {
+    padding: 8,
+    marginRight: 8,
+    backgroundColor: '#F3F6F8',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  regenerateButtonDisabled: {
+    opacity: 0.5,
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+  loadingInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+  },
+  loadingInputText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#666666',
+  },
   schedulerTextContainer: {
     marginLeft: 12,
     flex: 1,
+  },
+  videoCallContainer: {
+    backgroundColor: '#F3F6F8',
+    padding: 12,
+    borderRadius: 8,
+    maxWidth: '80%',
+  },
+  videoCallContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  videoIcon: {
+    marginRight: 12,
+  },
+  videoTextContainer: {
+    flex: 1,
+  },
+  videoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 8,
+  },
+  joinButton: {
+    backgroundColor: '#0A66C2',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+  },
+  joinButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 24,
+    width: '90%',
+    maxWidth: 400,
+  },
+  videoModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  videoModalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  videoModalBody: {
+    alignItems: 'center',
+  },
+  videoModalText: {
+    fontSize: 16,
+    color: '#000000',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  videoModalSubtext: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
   },
 }); 

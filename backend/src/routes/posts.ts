@@ -111,11 +111,6 @@ router.post('/:id/like', async (req: Request, res: Response) => {
   const postId = req.params.id;
   const { user_id } = req.body;
 
-  console.log('Like request received:', {
-    postId,
-    user_id,
-    body: req.body
-  });
 
   if (!user_id) {
     console.log('Missing user_id in request');
@@ -124,7 +119,6 @@ router.post('/:id/like', async (req: Request, res: Response) => {
 
   try {
     // Get the current post
-    console.log('Fetching post:', postId);
     const { data: post, error: postError } = await supabase
       .from('posts_activity')
       .select('num_of_likes')
@@ -140,14 +134,7 @@ router.post('/:id/like', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    console.log('Current post state:', post);
 
-    // Update the post's like count
-    console.log('Updating post likes:', {
-      postId,
-      currentLikes: post.num_of_likes,
-      newLikes: post.num_of_likes + 1
-    });
 
     const { data: updatedPost, error: updateError } = await supabase
       .from('posts_activity')
@@ -164,7 +151,6 @@ router.post('/:id/like', async (req: Request, res: Response) => {
     }
 
     // Get current user data
-    console.log('Fetching user:', user_id);
     const { data: currentUser, error: getCurrentUserError } = await supabase
       .from('users')
       .select('streak_count')
@@ -180,14 +166,6 @@ router.post('/:id/like', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('Current user state:', currentUser);
-
-    // Update user's streak count
-    console.log('Updating user streak:', {
-      userId: user_id,
-      currentStreak: currentUser.streak_count,
-      newStreak: currentUser.streak_count + 5
-    });
 
     const { data: user, error: userError } = await supabase
       .from('users')
@@ -203,10 +181,6 @@ router.post('/:id/like', async (req: Request, res: Response) => {
       throw userError;
     }
 
-    console.log('Like operation successful:', {
-      updatedPost,
-      updatedUser: user
-    });
 
     res.json({ post: updatedPost, streak_count: user.streak_count });
   } catch (error: any) {

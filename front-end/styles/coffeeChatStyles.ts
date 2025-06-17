@@ -62,6 +62,12 @@ export const coffeeChatStyles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
+  matchScore: {
+    fontSize: 12,
+    color: '#0A66C2',
+    fontWeight: '500',
+    marginTop: 2,
+  },
   interestsSection: {
     marginVertical: 12,
   },

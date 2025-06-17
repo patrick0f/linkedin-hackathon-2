@@ -10,6 +10,11 @@ export interface DayTimeSlot {
   time: string; // e.g. "12:00 PM"
 }
 
+interface User {
+  id: string;
+  time_avail?: number[];
+}
+
 /**
  * Converts a day and time to continuous hour count
  * Monday 00:00 = 0
@@ -175,4 +180,82 @@ export async function saveUserAvailability(
     console.error('Error saving availability:', error);
     throw error;
   }
+}
+
+/**
+ * Gets users who have matching availability times
+ * @param timeSlots - Array of continuous hour values to match against
+ * @param currentUserId - ID of the current user to exclude from results
+ * @returns Array of user IDs who have matching availability
+ */
+export async function getUsersWithMatchingTimes(timeSlots: number[], currentUserId: string): Promise<string[]> {
+  try {
+    // Get all users
+    const users = await userService.getAllUsers();
+    
+    // Convert timeSlots to a Set for faster lookup
+    const targetTimes = new Set(timeSlots);
+    
+    // Filter users who have at least one matching time slot and exclude current user
+    const matchingUsers = users
+      .filter((user: User) => 
+        user.id !== currentUserId && 
+        user.time_avail && 
+        user.time_avail.some((time: number) => targetTimes.has(time))
+      )
+      .map((user: User) => user.id);
+    
+    return matchingUsers;
+  } catch (error) {
+    console.error('Error getting users with matching times:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets the actual overlapping time slots between current user and another user
+ * @param currentUserAvailability - Current user's availability in continuous hours
+ * @param otherUserAvailability - Other user's availability in continuous hours
+ * @returns Array of overlapping time slots with day and time information
+ */
+export function getOverlappingTimeSlots(
+  currentUserAvailability: number[],
+  otherUserAvailability: number[]
+): DayTimeSlot[] {
+  // Find matching times
+  const matchingTimes = findMatchingTimes(currentUserAvailability, otherUserAvailability);
+  
+  // Convert back to day and time format
+  const overlappingSlots = matchingTimes.map(time => fromContinuousHours(time));
+  
+  return overlappingSlots.sort((a, b) => {
+    // Sort by day first, then by time
+    if (a.day !== b.day) {
+      return a.day - b.day;
+    }
+    // Convert time to 24-hour format for comparison
+    const timeA = toContinuousHours(a.day, a.time);
+    const timeB = toContinuousHours(b.day, b.time);
+    return timeA - timeB;
+  });
+}
+
+/**
+ * Converts overlapping time slots to a format suitable for the scheduler
+ * @param overlappingSlots - Array of overlapping time slots
+ * @returns Object with dates as keys and arrays of time slots as values
+ */
+export function formatOverlappingSlotsForScheduler(overlappingSlots: DayTimeSlot[]): { [date: string]: string[] } {
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const formattedSlots: { [date: string]: string[] } = {};
+  
+  overlappingSlots.forEach(slot => {
+    const dayName = dayNames[slot.day];
+    if (!formattedSlots[dayName]) {
+      formattedSlots[dayName] = [];
+    }
+    formattedSlots[dayName].push(slot.time);
+  });
+  
+  return formattedSlots;
 } 

@@ -134,4 +134,52 @@ export const postService = {
   },
 };
 
+export const chatgptService = {
+  // Process matching users with ChatGPT
+  processMatchingUsers: async (matchingUsers: any[], currentUser: any) => {
+    try {
+      const response = await api.post('/api/chatgpt/process-matches', {
+        matchingUsers,
+        currentUser
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error processing matches with ChatGPT:', error);
+      throw error;
+    }
+  },
+
+  // Generate conversation starter
+  generateConversationStarter: async (currentUser: any, selectedUser: any, selectedTime?: string, selectedDate?: string, storedMatches?: any[]) => {
+    try {
+      const response = await api.post('/api/chatgpt/generate-conversation-starter', {
+        currentUser,
+        selectedUser,
+        selectedTime,
+        selectedDate,
+        storedMatches
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating conversation starter:', error);
+      throw error;
+    }
+  },
+
+  // Generate DM starter
+  generateDMStarter: async (currentUser: any, selectedUser: any, storedMatches?: any[]) => {
+    try {
+      const response = await api.post('/api/chatgpt/generate-dm-starter', {
+        currentUser,
+        selectedUser,
+        storedMatches
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating DM starter:', error);
+      throw error;
+    }
+  },
+};
+
 export default api; 

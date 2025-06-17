@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { chatDetailStyles } from '../styles/chatDetailStyles';
 import { useUser } from '../contexts/UserContext';
+import { chatgptService } from '../services/api';
+import { storageService } from '../lib/storage';
 
 interface Message {
   id: string;
@@ -13,6 +15,7 @@ interface Message {
   timestamp: string;
   sender: string;
   isScheduler?: boolean;
+  isVideoCall?: boolean;
 }
 
 interface Contact {
@@ -20,6 +23,13 @@ interface Contact {
   avatar: any;
   status?: string;
   userId: string;
+  title?: string;
+  company?: string;
+  location?: string;
+  careerInterests?: string[];
+  personalInterests?: string[];
+  matchScore?: number;
+  meetingReason?: string;
 }
 
 interface ChatDetailProps {
@@ -29,76 +39,6 @@ interface ChatDetailProps {
   isScheduler?: boolean;
   onNavigateToCoffeeChats: () => void;
 }
-
-// Different conversation starters based on the user's name
-const CONVERSATION_TEMPLATES = [
-  {
-    topic: 'software_engineering' as const,
-    messages: [
-      "Hi! I noticed you're working in software engineering. I'd love to learn more about your experience.",
-      "Thanks for connecting! I'm particularly interested in your work with cloud technologies.",
-      "I saw your profile and your background in full-stack development is impressive.",
-      "Hello! Your experience in AI/ML caught my attention. Would love to chat about it.",
-    ]
-  },
-  {
-    topic: 'data_science' as const,
-    messages: [
-      "Hi there! Your data science projects look fascinating. Would love to discuss your approach.",
-      "I'm interested in your work with big data analytics. Could we connect to discuss?",
-      "Your experience in machine learning is impressive. Would you be open to sharing insights?",
-      "Hello! I noticed you work with data visualization. I'd love to learn from your experience.",
-    ]
-  },
-  {
-    topic: 'product_management' as const,
-    messages: [
-      "Hi! Your product management experience is exactly what I'm looking to learn about.",
-      "I'm fascinated by your approach to product development. Would love to chat.",
-      "Your product strategy work looks interesting. Could we discuss your methodology?",
-      "Hello! I'd love to learn about how you prioritize product features.",
-    ]
-  },
-  {
-    topic: 'design' as const,
-    messages: [
-      "Your design portfolio is amazing! Would love to hear about your creative process.",
-      "Hi! I'm impressed by your UI/UX work. Could we discuss your approach?",
-      "Your design solutions are innovative. Would you share some insights?",
-      "Hello! I'd love to learn about your experience in product design.",
-    ]
-  }
-] as const;
-
-type Topic = typeof CONVERSATION_TEMPLATES[number]['topic'];
-
-// Follow-up messages for each topic
-const FOLLOW_UP_MESSAGES: Record<Topic, string[]> = {
-  software_engineering: [
-    "What technologies are you currently working with?",
-    "How do you approach system design in your projects?",
-    "What's your take on microservices vs monolithic architectures?",
-    "How do you handle scalability challenges?",
-  ],
-  data_science: [
-    "What tools do you prefer for data analysis?",
-    "How do you approach feature engineering?",
-    "What's your experience with deep learning?",
-    "How do you handle data preprocessing?",
-  ],
-  product_management: [
-    "How do you gather user feedback?",
-    "What's your approach to roadmap planning?",
-    "How do you measure product success?",
-    "What frameworks do you use for decision making?",
-  ],
-  design: [
-    "What's your favorite design tool?",
-    "How do you approach user research?",
-    "What's your process for design systems?",
-    "How do you handle design handoff to developers?",
-  ],
-};
 
 const ChatDetail: React.FC<ChatDetailProps> = ({
   contact,
@@ -112,12 +52,93 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [generatingMessage, setGeneratingMessage] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
-    // Prefill the input with a prewritten message, but do not send it
-    setNewMessage("Hi! I saw we have similar interests in technology and career development. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?");
-    setMessages([]);
-  }, [currentUser?.name]);
+    // Add default message when component mounts
+    const defaultMessage: Message = {
+      id: 'default-1',
+      text: `Hi ${contact.name}! I noticed we share a background in software development and both have experience with React Native. I'd love to connect and hear about your journey in mobile app development. Would you be up for a quick video chat to discuss our experiences?`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      sender: currentUser?.name || 'You'
+    };
+
+    const videoCallMessage: Message = {
+      id: 'video-call-1',
+      text: `${contact.name}'s meeting`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      sender: currentUser?.name || 'You',
+      isVideoCall: true
+    };
+
+    setMessages([defaultMessage, videoCallMessage]);
+    generateAIMessage();
+  }, [contact.userId]);
+
+  const generateAIMessage = async () => {
+    if (!currentUser || !contact) return;
+    
+    setGeneratingMessage(true);
+    try {
+      console.log('Generating AI message for DM...');
+      console.log('Current user:', currentUser);
+      console.log('Contact:', contact);
+      
+      // Get stored ChatGPT matches for better context
+      const storedMatches = await storageService.getChatGPTMatches();
+      console.log('Retrieved stored matches:', storedMatches.length, 'matches');
+      
+      const response = await chatgptService.generateDMStarter(
+        currentUser,
+        contact,
+        storedMatches
+      );
+      
+      console.log('AI DM message response:', response);
+      
+      if (response.success && response.dmStarter) {
+        setNewMessage(response.dmStarter);
+      } else {
+        // Fallback message
+        setNewMessage("Hi! I noticed we have similar interests and would love to connect. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?");
+      }
+    } catch (error) {
+      console.error('Error generating AI message:', error);
+      // Fallback message
+      setNewMessage("Hi! I noticed we have similar interests and would love to connect. Would you be interested in having a coffee chat to discuss our experiences and potential collaboration opportunities?");
+    } finally {
+      setGeneratingMessage(false);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim() || sendingMessage) return;
+    
+    setSendingMessage(true);
+    
+    // Simulate sending delay
+    setTimeout(() => {
+      const messageToSend: Message = {
+        id: Date.now().toString(),
+        text: newMessage.trim(),
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sender: currentUser?.name || 'You'
+      };
+      
+      setMessages(prev => [...prev, messageToSend]);
+      setNewMessage('');
+      setSendingMessage(false);
+      
+      // Show a brief success indicator
+      console.log('Message sent successfully!');
+    }, 1000);
+  };
+
+  const handleRegenerateMessage = () => {
+    generateAIMessage();
+  };
 
   const renderSchedulerInfo = () => {
     if (!isScheduler) return null;
@@ -199,6 +220,25 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
     );
   };
 
+  const renderVideoCallMessage = (message: Message) => {
+    return (
+      <View style={chatDetailStyles.videoCallContainer}>
+        <View style={chatDetailStyles.videoCallContent}>
+          <Ionicons name="videocam" size={24} color="#666" style={chatDetailStyles.videoIcon} />
+          <View style={chatDetailStyles.videoTextContainer}>
+            <Text style={chatDetailStyles.videoTitle}>{message.text}</Text>
+            <TouchableOpacity 
+              style={chatDetailStyles.joinButton}
+              onPress={() => setShowVideoModal(true)}
+            >
+              <Text style={chatDetailStyles.joinButtonText}>Join video meeting</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={chatDetailStyles.container}>
       <View style={chatDetailStyles.header}>
@@ -224,7 +264,9 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
               message.sender === (currentUser?.name || 'You') ? chatDetailStyles.sentMessage : chatDetailStyles.receivedMessage
             ]}
           >
-            {message.isScheduler ? (
+            {message.isVideoCall ? (
+              renderVideoCallMessage(message)
+            ) : message.isScheduler ? (
               <TouchableOpacity 
                 style={chatDetailStyles.schedulerContainer}
                 onPress={onNavigateToCoffeeChats}
@@ -258,25 +300,77 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
 
       <View style={chatDetailStyles.inputContainer}>
         <View style={chatDetailStyles.inputWrapper}>
-          <TextInput
-            style={chatDetailStyles.input}
-            value={newMessage}
-            onChangeText={setNewMessage}
-            multiline
-            placeholder="Write a message..."
-            testID="message-input"
-          />
+          {generatingMessage ? (
+            <View style={chatDetailStyles.loadingInputContainer}>
+              <ActivityIndicator size="small" color="#0A66C2" />
+              <Text style={chatDetailStyles.loadingInputText}>Generating AI message...</Text>
+            </View>
+          ) : (
+            <TextInput
+              style={chatDetailStyles.input}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              multiline
+              placeholder="Write a message..."
+              testID="message-input"
+              editable={!generatingMessage}
+            />
+          )}
           <TouchableOpacity 
             style={chatDetailStyles.attachButton}
             onPress={() => setShowOptions(!showOptions)}
+            disabled={generatingMessage}
           >
             <Ionicons name="attach" size={24} color="#666" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={chatDetailStyles.sendButton}>
-          <Ionicons name="send" size={24} color="#0A66C2" />
+        
+        {/* Regenerate AI Message Button */}
+        {!messages.length && !generatingMessage && (
+          <TouchableOpacity 
+            style={chatDetailStyles.regenerateButton}
+            onPress={handleRegenerateMessage}
+            disabled={generatingMessage}
+          >
+            <Ionicons name="refresh" size={20} color="#0A66C2" />
+          </TouchableOpacity>
+        )}
+        
+        <TouchableOpacity 
+          style={[chatDetailStyles.sendButton, (!newMessage.trim() || sendingMessage || generatingMessage) && chatDetailStyles.sendButtonDisabled]}
+          onPress={handleSendMessage}
+          disabled={!newMessage.trim() || sendingMessage || generatingMessage}
+        >
+          {sendingMessage ? (
+            <ActivityIndicator size="small" color="#0A66C2" />
+          ) : (
+            <Ionicons name="send" size={24} color="#0A66C2" />
+          )}
         </TouchableOpacity>
       </View>
+
+      {/* Video Call Modal */}
+      <Modal
+        visible={showVideoModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowVideoModal(false)}
+      >
+        <View style={chatDetailStyles.modalOverlay}>
+          <View style={chatDetailStyles.videoModalContent}>
+            <View style={chatDetailStyles.videoModalHeader}>
+              <Text style={chatDetailStyles.videoModalTitle}>{contact.name}'s meeting</Text>
+              <TouchableOpacity onPress={() => setShowVideoModal(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <View style={chatDetailStyles.videoModalBody}>
+              <Text style={chatDetailStyles.videoModalText}>The meeting isn't loading for some reason</Text>
+              <Text style={chatDetailStyles.videoModalSubtext}>Can we use Zoom or Google Meets?</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

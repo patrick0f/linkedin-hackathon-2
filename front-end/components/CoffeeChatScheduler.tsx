@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import ScheduleConfirmationModal from './ScheduleConfirmationModal';
+import { getOverlappingTimeSlots, formatOverlappingSlotsForScheduler, availabilityToContinuousHours } from '../lib/timeUtils';
+import { userService, chatgptService } from '../services/api';
+import { useUser } from '../contexts/UserContext';
+import { storageService } from '../lib/storage';
 
 interface TimeSlot {
   date: string;
@@ -23,55 +27,201 @@ interface MatchProfile {
 interface CoffeeChatSchedulerProps {
   onClose: () => void;
   contact: Contact;
+  currentUserAvailability: { [key: number]: string[] };
   error: string | null;
   saving: boolean;
 }
 
 interface Contact {
+  id: string;
   name: string;
+  title: string;
+  company: string;
+  location: string;
   avatar: any;
-  status?: string;
+  careerInterests: string[];
+  personalInterests: string[];
+  availability: string;
   userId: string;
+  matchScore?: number;
+  meetingReason?: string;
 }
 
 const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
   onClose,
   contact,
+  currentUserAvailability,
   error,
   saving
 }) => {
+  const { currentUser } = useUser();
   const [selectedTime, setSelectedTime] = useState<{
     time: string;
     date: string;
   } | null>(null);
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
+  const [greeting, setGreeting] = useState(`Hi ${contact.name}, looking forward to our coffee chat!`);
+  const [availableTimes, setAvailableTimes] = useState<TimeSlot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generatingStarter, setGeneratingStarter] = useState(false);
 
-  // Mock data - replace with actual data later
-  const matchProfile: MatchProfile = {
-    name: "Thomas Simmons",
-    title: "Product Designer",
-    company: "Figma",
-    location: "San Francisco, CA",
-    avatar: require('../assets/default-profile.png'),
-    careerInterests: ["Product Strategy", "UX Design", "Agile Methodology"],
-    personalInterests: ["Soccer", "hiking", "non-fiction books"],
-    availableTimes: [
-      {
-        date: "Monday, Mar 18",
-        slots: ["9:00 AM", "10:00 AM", "2:00 PM"]
-      },
-      {
-        date: "Tuesday, Mar 19",
-        slots: ["11:00 AM", "3:00 PM", "4:00 PM"]
-      }
-    ]
+  // Helper function to get avatar source
+  const getAvatarSource = (avatar: any) => {
+    if (typeof avatar === 'string' && avatar.startsWith('http')) {
+      return { uri: avatar };
+    } else if (avatar) {
+      return avatar;
+    } else {
+      return require('../assets/default-profile.png');
+    }
   };
 
-  const handleTimeSlotPress = (slot: string, date: string) => {
-    setSelectedTime({ time: slot, date });
+  // Fetch the other user's availability and calculate overlapping times
+  useEffect(() => {
+    const fetchOverlappingTimes = async () => {
+      try {
+        console.log('Fetching overlapping times for user:', contact.userId);
+        
+        // Get the other user's data
+        const otherUser = await userService.getUserById(contact.userId);
+        console.log('Other user data:', otherUser);
+        
+        if (otherUser.time_avail && Array.isArray(otherUser.time_avail)) {
+          // Convert current user's availability to continuous hours
+          const currentUserHours = availabilityToContinuousHours(currentUserAvailability);
+          console.log('Current user hours:', currentUserHours);
+          console.log('Other user hours (from DB):', otherUser.time_avail);
+          
+          // Get overlapping time slots - both are now in continuous hours format
+          const overlappingSlots = getOverlappingTimeSlots(currentUserHours, otherUser.time_avail);
+          console.log('Overlapping slots:', overlappingSlots);
+          
+          // Format for scheduler
+          const formattedSlots = formatOverlappingSlotsForScheduler(overlappingSlots);
+          console.log('Formatted slots:', formattedSlots);
+          
+          // Convert to TimeSlot format
+          const timeSlots: TimeSlot[] = Object.entries(formattedSlots).map(([day, slots]) => ({
+            date: day,
+            slots: slots
+          }));
+          
+          console.log('Final time slots:', timeSlots);
+          setAvailableTimes(timeSlots);
+        } else {
+          console.log('No availability data for other user');
+          setAvailableTimes([]);
+        }
+      } catch (error) {
+        console.error('Error fetching overlapping times:', error);
+        setAvailableTimes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOverlappingTimes();
+  }, [contact.userId, currentUserAvailability]);
+
+  // Fetch available times when component mounts
+  useEffect(() => {
+    const fetchOverlappingTimes = async () => {
+      try {
+        console.log('Fetching available times for contact:', contact.userId);
+        const response = await userService.getUserById(contact.userId);
+        console.log('Contact availability response:', response);
+        
+        if (response.success && response.user && response.user.time_avail) {
+          // Convert current user availability to continuous hours
+          const currentUserContinuousHours = availabilityToContinuousHours(currentUserAvailability);
+          
+          // Get overlapping slots
+          const overlappingSlots = getOverlappingTimeSlots(
+            currentUserContinuousHours,
+            response.user.time_avail
+          );
+          console.log('Overlapping slots:', overlappingSlots);
+          
+          // Convert to scheduler format
+          const formattedSlots = formatOverlappingSlotsForScheduler(overlappingSlots);
+          console.log('Formatted slots:', formattedSlots);
+          
+          // Convert to TimeSlot array format
+          const timeSlotArray: TimeSlot[] = Object.entries(formattedSlots).map(([date, slots]) => ({
+            date,
+            slots
+          }));
+          
+          setAvailableTimes(timeSlotArray);
+        }
+      } catch (error) {
+        console.error('Error fetching available times:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOverlappingTimes();
+  }, [contact.userId, currentUserAvailability]);
+
+  // Generate conversation starter when modal opens
+  useEffect(() => {
+    if (showMeetingModal && selectedTime && currentUser && contact) {
+      generateConversationStarter();
+    }
+  }, [showMeetingModal, selectedTime, currentUser, contact]);
+
+  // Use the actual contact data instead of mock data
+  const matchProfile: MatchProfile = {
+    name: contact.name,
+    title: contact.title,
+    company: contact.company,
+    location: contact.location,
+    avatar: getAvatarSource(contact.avatar),
+    careerInterests: Array.isArray(contact.careerInterests) ? contact.careerInterests : [],
+    personalInterests: Array.isArray(contact.personalInterests) ? contact.personalInterests : [],
+    availableTimes: availableTimes
+  };
+
+  const handleTimeSelect = (time: string, date: string) => {
+    setSelectedTime({ time, date });
     setShowMeetingModal(true);
+  };
+
+  const generateConversationStarter = async () => {
+    if (!currentUser || !contact) return;
+    
+    setGeneratingStarter(true);
+    try {
+      console.log('Generating conversation starter...');
+      console.log('Current user:', currentUser);
+      console.log('Selected contact:', contact);
+      console.log('Selected time:', selectedTime);
+      
+      // Get stored ChatGPT matches for better context
+      const storedMatches = await storageService.getChatGPTMatches();
+      console.log('Retrieved stored matches:', storedMatches.length, 'matches');
+      
+      const response = await chatgptService.generateConversationStarter(
+        currentUser,
+        contact,
+        selectedTime?.time,
+        selectedTime?.date,
+        storedMatches
+      );
+      
+      console.log('Conversation starter response:', response);
+      
+      if (response.success && response.conversationStarter) {
+        setGreeting(response.conversationStarter);
+      }
+    } catch (error) {
+      console.error('Error generating conversation starter:', error);
+      // Keep the default greeting if generation fails
+    } finally {
+      setGeneratingStarter(false);
+    }
   };
 
   const handleScheduleMeeting = () => {
@@ -86,7 +236,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     setShowConfirmation(false);
     setShowMeetingModal(false);
     setSelectedTime(null);
-    setGreeting('Hi Thomas, looking forward to our coffee chat!');
+    setGreeting(`Hi ${contact.name}, looking forward to our coffee chat!`);
     // Ensure we close everything before going back
     setTimeout(() => {
       onClose();
@@ -113,13 +263,23 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
 
       <ScrollView style={styles.content}>
         <View style={styles.profileSection}>
-          <Image source={matchProfile.avatar} style={styles.avatar} />
+          <Image source={getAvatarSource(matchProfile.avatar)} style={styles.avatar} />
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{matchProfile.name} · <Text style={styles.degree}>1st</Text></Text>
             <Text style={styles.title}>{matchProfile.title} at {matchProfile.company}</Text>
             <Text style={styles.location}>{matchProfile.location}</Text>
+            {contact.matchScore && (
+              <Text style={styles.matchScore}>Match Score: {contact.matchScore}%</Text>
+            )}
           </View>
         </View>
+
+        {contact.meetingReason && (
+          <View style={styles.meetingReasonSection}>
+            <Text style={styles.meetingReasonLabel}>Why Connect:</Text>
+            <Text style={styles.meetingReasonText}>{contact.meetingReason}</Text>
+          </View>
+        )}
 
         <View style={styles.interestsSection}>
           <View style={styles.interestGroup}>
@@ -127,7 +287,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
             <Text style={styles.interestText}>{matchProfile.careerInterests.join(', ')}</Text>
           </View>
           <View style={styles.interestGroup}>
-            <Text style={styles.interestLabel}>Personal Interests:</Text>
+            <Text style={styles.interestLabel}>Shared Traits:</Text>
             <Text style={styles.interestText}>{matchProfile.personalInterests.join(', ')}</Text>
           </View>
         </View>
@@ -138,40 +298,42 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
             <Text style={styles.availabilityTitle}>Available Times</Text>
           </View>
           
-          {matchProfile.availableTimes.map((timeSlot, dateIndex) => (
-            <View key={dateIndex} style={styles.dateGroup}>
-              <Text style={styles.dateText}>{timeSlot.date}</Text>
-              {timeSlot.slots.map((slot, slotIndex) => (
-                <TouchableOpacity
-                  key={slotIndex}
-                  style={[
-                    styles.timeSlot,
-                    selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
-                  ]}
-                  onPress={() => handleTimeSlotPress(slot, timeSlot.date)}
-                >
-                  <Text style={[
-                    styles.timeSlotText,
-                    selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlotText
-                  ]}>
-                    {slot}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading available times...</Text>
             </View>
-          ))}
+          ) : availableTimes.length > 0 ? (
+            availableTimes.map((timeSlot, dateIndex) => (
+              <View key={dateIndex} style={styles.dateGroup}>
+                <Text style={styles.dateText}>{timeSlot.date}</Text>
+                {timeSlot.slots.map((slot, slotIndex) => (
+                  <TouchableOpacity
+                    key={slotIndex}
+                    style={[
+                      styles.timeSlot,
+                      selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
+                    ]}
+                    onPress={() => handleTimeSelect(slot, timeSlot.date)}
+                  >
+                    <Text style={[
+                      styles.timeSlotText,
+                      selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlotText
+                    ]}>
+                      {slot}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))
+          ) : (
+            <View style={styles.noTimesContainer}>
+              <Text style={styles.noTimesText}>No overlapping times available</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
-          disabled={!selectedTime}
-          onPress={handleScheduleMeeting}
-        >
-          <Ionicons name="calendar-outline" size={20} color="#FFFFFF" />
-          <Text style={styles.scheduleButtonText}>Schedule Chat</Text>
-        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.messageButton} 
           onPress={handleMessage}
@@ -196,7 +358,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                 style={styles.modalContent}
               >
                 <View style={styles.modalHeader}>
-                  <Image source={matchProfile.avatar} style={styles.modalAvatar} />
+                  <Image source={getAvatarSource(matchProfile.avatar)} style={styles.modalAvatar} />
                   <Text style={styles.modalTitle}>
                     Coffee chat with{"\n"}
                     <Text style={styles.modalTitleBold}>{matchProfile.name}</Text>
@@ -218,9 +380,10 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                     accessibilityLabel="AI generated"
                   />
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.modalScheduleButton}
                   onPress={handleScheduleMeeting}
+                  disabled={saving}
                 >
                   <Text style={styles.modalScheduleButtonText}>Schedule Coffee Chat</Text>
                 </TouchableOpacity>
@@ -228,6 +391,16 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
+
+        {/* Loading overlay */}
+        {generatingStarter && (
+          <View style={styles.loadingOverlay}>
+            <View style={styles.loadingContent}>
+              <ActivityIndicator size="large" color="#007AFF" />
+              <Text style={styles.loadingText}>Generating conversation starter...</Text>
+            </View>
+          </View>
+        )}
       </Modal>
 
       <ScheduleConfirmationModal
@@ -300,6 +473,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  matchScore: {
+    fontSize: 12,
+    color: '#0A66C2',
+    fontWeight: '500',
+    marginTop: 4,
+  },
   interestsSection: {
     padding: 16,
     borderBottomWidth: 1,
@@ -360,30 +539,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
   },
-  scheduleButton: {
-    flex: 1,
-    backgroundColor: '#0A66C2',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  scheduleButtonDisabled: {
-    backgroundColor: '#B2B2B2',
-  },
-  scheduleButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
   messageButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#0A66C2',
@@ -396,22 +559,18 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   modalContent: {
     height: '65%',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    overflow: 'hidden',
     padding: 24,
-    alignItems: 'center',
+    marginTop: 'auto',
   },
   modalHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
     marginBottom: 12,
   },
   modalAvatar: {
@@ -443,10 +602,9 @@ const styles = StyleSheet.create({
     minHeight: 80,
     borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 8,
+    padding: 12,
     fontSize: 16,
-    backgroundColor: '#F5F5F5',
     textAlignVertical: 'top',
     paddingRight: 40,
   },
@@ -461,13 +619,71 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#0A66C2',
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 12,
     alignItems: 'center',
   },
   modalScheduleButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  meetingReasonSection: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  meetingReasonLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  meetingReasonText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noTimesContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noTimesText: {
+    fontSize: 16,
+    color: '#666',
   },
 });
 
