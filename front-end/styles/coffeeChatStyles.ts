@@ -10,6 +10,7 @@ export const coffeeChatStyles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
     backgroundColor: '#fff',
     paddingVertical: 8,
+    flexShrink: 0,
   },
   filterButton: {
     paddingHorizontal: 16,
@@ -69,7 +70,7 @@ export const coffeeChatStyles = StyleSheet.create({
     marginTop: 2,
   },
   interestsSection: {
-    marginVertical: 12,
+    marginTop: 12,
   },
   interestGroup: {
     marginBottom: 8,
@@ -86,7 +87,7 @@ export const coffeeChatStyles = StyleSheet.create({
     lineHeight: 20,
   },
   availabilitySection: {
-    marginTop: 12,
+    marginBottom: 10,
   },
   availabilityInfo: {
     flexDirection: 'row',

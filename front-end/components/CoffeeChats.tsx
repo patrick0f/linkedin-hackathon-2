@@ -417,12 +417,6 @@ const CoffeeChats: React.FC = () => {
 
           <View style={coffeeChatStyles.interestsSection}>
             <View style={coffeeChatStyles.interestGroup}>
-              <Text style={coffeeChatStyles.interestLabel}>Career Interests</Text>
-              <Text style={coffeeChatStyles.interestText}>
-                {Array.isArray(match.careerInterests) ? match.careerInterests.join(', ') : match.careerInterests}
-              </Text>
-            </View>
-            <View style={coffeeChatStyles.interestGroup}>
               <Text style={coffeeChatStyles.interestLabel}>Shared Traits</Text>
               <Text style={coffeeChatStyles.interestText}>
                 {Array.isArray(match.personalInterests) ? match.personalInterests.join(', ') : match.personalInterests}

@@ -58,6 +58,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
 
   useEffect(() => {
     // Add default message when component mounts
+    /* Temporarily commented out pre-sent message
     const defaultMessage: Message = {
       id: 'default-1',
       text: `Hi ${contact.name}! I noticed we share a background in software development and both have experience with React Native. I'd love to connect and hear about your journey in mobile app development. Would you be up for a quick video chat to discuss our experiences?`,
@@ -74,6 +75,9 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
     };
 
     setMessages([defaultMessage, videoCallMessage]);
+    */
+    // Start with empty messages
+    setMessages([]);
     generateAIMessage();
   }, [contact.userId]);
 
@@ -224,13 +228,15 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
     return (
       <View style={chatDetailStyles.videoCallContainer}>
         <View style={chatDetailStyles.videoCallContent}>
-          <Ionicons name="videocam" size={24} color="#666" style={chatDetailStyles.videoIcon} />
+          <View style={chatDetailStyles.videoIcon}>
+            <Ionicons name="videocam" size={20} color="#0A66C2" />
+          </View>
           <View style={chatDetailStyles.videoTextContainer}>
-            <Text style={chatDetailStyles.videoTitle}>{message.text}</Text>
+            <Text style={chatDetailStyles.videoTitle}>Coffee Chat</Text>
             <TouchableOpacity 
               style={chatDetailStyles.joinButton}
-              onPress={() => setShowVideoModal(true)}
             >
+              <Ionicons name="videocam" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
               <Text style={chatDetailStyles.joinButtonText}>Join video meeting</Text>
             </TouchableOpacity>
           </View>
@@ -349,7 +355,8 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Video Call Modal */}
+      {/* Video Call Modal - Temporarily commented out */}
+      {/*
       <Modal
         visible={showVideoModal}
         animationType="slide"
@@ -371,6 +378,7 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
           </View>
         </View>
       </Modal>
+      */}
     </View>
   );
 };

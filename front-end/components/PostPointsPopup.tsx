@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, StyleSheet } from 'react-native';
+import { Animated, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface PostPointsPopupProps {
@@ -51,8 +51,10 @@ const PostPointsPopup: React.FC<PostPointsPopupProps> = ({ onFadeOut }) => {
       ]}
       testID="post-points-popup"
     >
-      <Ionicons name="star" size={32} color="#FFD700" style={styles.icon} />
-      <Text style={styles.text}>10 points</Text>
+      <View style={styles.iconContainer}>
+        <Ionicons name="star" size={24} color="#FFD700" />
+      </View>
+      <Text style={styles.text}>+ 10 points</Text>
     </Animated.View>
   );
 };
@@ -60,27 +62,36 @@ const PostPointsPopup: React.FC<PostPointsPopupProps> = ({ onFadeOut }) => {
 const styles = StyleSheet.create({
   popup: {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -75 }, { translateY: -25 }],
+    top: 20,
+    alignSelf: 'center',
+    left: undefined,
+    transform: [],
     backgroundColor: '#fff',
     borderRadius: 24,
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     elevation: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.18,
     shadowRadius: 6,
     zIndex: 1000,
+    minWidth: 150,
   },
-  icon: {
-    marginRight: 8,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E7F1FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   text: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#0A66C2',
   },

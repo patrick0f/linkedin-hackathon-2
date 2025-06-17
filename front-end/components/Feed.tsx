@@ -130,6 +130,9 @@ export const Feed = () => {
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
+        {showPostPoints && (
+          <PostPointsPopup onFadeOut={() => setShowPostPoints(false)} />
+        )}
         <ScrollView style={feedStyles.scrollView}>
           <View style={feedStyles.createPostContainer}>
             <TextInput
