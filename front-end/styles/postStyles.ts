@@ -105,7 +105,7 @@ export const postStyles = StyleSheet.create({
   actionTextConnect: {
     marginLeft: 4,
     fontSize: 16,
-    color: '#0077B5',
+    color: '#0a66c2',
     fontWeight: 'bold',
   },
   headerConnect: {

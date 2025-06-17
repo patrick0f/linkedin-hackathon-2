@@ -216,4 +216,13 @@ export const coffeeChatStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  errorText: {
+    color: '#FF0000',
+    fontSize: 14,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
+  },
 }); 

@@ -3,6 +3,7 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
+import { useUser } from '../contexts/UserContext';
 
 interface User {
   id: string;
@@ -22,6 +23,7 @@ interface PostData {
 }
 
 export const Feed = () => {
+  const { currentUser, loading: userLoading } = useUser();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [users, setUsers] = useState<Record<string, User>>({});
   const [loading, setLoading] = useState(true);
@@ -56,12 +58,13 @@ export const Feed = () => {
   };
 
   const handleCreatePost = async () => {
-    if (!newPostText.trim()) return;
+    if (!newPostText.trim() || !currentUser) return;
 
     try {
       const newPost = await postService.createPost({
-        user_id: 'test-user-id',
+        user_id: currentUser.id,
         post_text: newPostText,
+        pfp: currentUser.profile_pic || undefined
       });
       setPosts([newPost, ...posts]);
       setNewPostText('');
@@ -96,7 +99,7 @@ export const Feed = () => {
     return postDate.toLocaleDateString();
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <View style={feedStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#0077B5" />
@@ -112,27 +115,35 @@ export const Feed = () => {
     );
   }
 
+  if (!currentUser) {
+    return (
+      <View style={feedStyles.errorContainer}>
+        <Text style={feedStyles.errorText}>Please log in to view the feed</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
-        <ScrollView style={feedStyles.scrollView}>
-          <View style={feedStyles.createPostContainer}>
-            <TextInput
-              style={feedStyles.input}
-              value={newPostText}
-              onChangeText={setNewPostText}
-              placeholder="What's on your mind?"
-              multiline
-            />
-            <TouchableOpacity
-              style={feedStyles.postButton}
-              onPress={handleCreatePost}
-              disabled={!newPostText.trim()}
-            >
-              <Text style={feedStyles.postButtonText}>Post</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={feedStyles.createPostContainer}>
+          <TextInput
+            style={feedStyles.input}
+            value={newPostText}
+            onChangeText={setNewPostText}
+            placeholder="What's on your mind?"
+            multiline
+          />
+          <TouchableOpacity
+            style={feedStyles.postButton}
+            onPress={handleCreatePost}
+            disabled={!newPostText.trim()}
+          >
+            <Text style={feedStyles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
 
+        <ScrollView style={feedStyles.scrollView}>
           {posts.map((post) => {
             const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
             return (
