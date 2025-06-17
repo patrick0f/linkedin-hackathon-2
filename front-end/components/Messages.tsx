@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { messagesStyles } from '../styles/messagesStyles';
-import CoffeeChats from './CoffeeChats';
+import CoffeeChats  from './CoffeeChats';
 import ChatDetail from './ChatDetail';
 
 const MESSAGES = [

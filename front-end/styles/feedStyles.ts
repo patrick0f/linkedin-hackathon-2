@@ -40,6 +40,7 @@ export const feedStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     width: '100%',
+    position: 'relative', // Ensure it's not sticky
   },
   input: {
     minHeight: 100,

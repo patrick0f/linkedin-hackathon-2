@@ -32,7 +32,7 @@ export const messagesStyles = StyleSheet.create({
   filtersContainer: {
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-    
+    flexGrow: 0,
   },
   filtersContentContainer: {
     paddingHorizontal: 12,
@@ -45,6 +45,7 @@ export const messagesStyles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     marginRight: 8,
+    margin: 5,
     borderRadius: 16,
     backgroundColor: '#f3f2ef',
   },

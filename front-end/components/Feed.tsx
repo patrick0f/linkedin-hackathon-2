@@ -115,24 +115,24 @@ export const Feed = () => {
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
-        <View style={feedStyles.createPostContainer}>
-          <TextInput
-            style={feedStyles.input}
-            value={newPostText}
-            onChangeText={setNewPostText}
-            placeholder="What's on your mind?"
-            multiline
-          />
-          <TouchableOpacity
-            style={feedStyles.postButton}
-            onPress={handleCreatePost}
-            disabled={!newPostText.trim()}
-          >
-            <Text style={feedStyles.postButtonText}>Post</Text>
-          </TouchableOpacity>
-        </View>
-
         <ScrollView style={feedStyles.scrollView}>
+          <View style={feedStyles.createPostContainer}>
+            <TextInput
+              style={feedStyles.input}
+              value={newPostText}
+              onChangeText={setNewPostText}
+              placeholder="What's on your mind?"
+              multiline
+            />
+            <TouchableOpacity
+              style={feedStyles.postButton}
+              onPress={handleCreatePost}
+              disabled={!newPostText.trim()}
+            >
+              <Text style={feedStyles.postButtonText}>Post</Text>
+            </TouchableOpacity>
+          </View>
+
           {posts.map((post) => {
             const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
             return (

@@ -34,10 +34,6 @@ export const Header = ({ onMessagePress }: HeaderProps) => {
         <TouchableOpacity onPress={onMessagePress}>
           <Ionicons name="chatbubbles" size={24} color="#666" />
         </TouchableOpacity>
-        
-        <TouchableOpacity onPress={onMessagePress}>
-          <Ionicons name="chatbubble-ellipses-sharp" size={24} color="#666" />
-        </TouchableOpacity>
       </View>
 
       <ProfileOverlay 
