@@ -145,7 +145,7 @@ export const coffeeChatStyles = StyleSheet.create({
     alignSelf: 'center',
   },
   dayButton: {
-    width: 45,
+    width: 40,
     height: 60,
     marginHorizontal: 4,
     borderRadius: 8,

@@ -22,6 +22,8 @@ interface TimeSlot {
 const CoffeeChats: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [availabilityByDay, setAvailabilityByDay] = useState<{ [key: number]: string[] }>({});
+  const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
+  const [showCalendar, setShowCalendar] = useState(true);
 
   // Static weekdays array
   const weekDays = [
@@ -58,8 +60,8 @@ const CoffeeChats: React.FC = () => {
   };
 
   const handleSubmitAvailability = () => {
-    // Here you would send the availabilityByDay data to your backend
-    console.log('Submitted availability:', availabilityByDay);
+    setSubmittedAvailabilities(prev => [...prev, availabilityByDay]);
+    setShowCalendar(false);
   };
 
   // Mock data - will be used later
@@ -77,134 +79,136 @@ const CoffeeChats: React.FC = () => {
     },
   ];
 
-  return (
-    <View style={coffeeChatStyles.container}>
-      {/* Weekly Calendar */}
-      <View style={coffeeChatStyles.calendarContainer}>
-        <Text style={coffeeChatStyles.calendarTitle}>Select Your Availability</Text>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={coffeeChatStyles.daysContainer}
-        >
-          {weekDays.map((day, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                coffeeChatStyles.dayButton,
-                selectedDay === index && coffeeChatStyles.selectedDayButton,
-              ]}
-              onPress={() => handleDaySelect(index)}
-            >
-              <Text 
-                style={[
-                  coffeeChatStyles.dayNumber,
-                  selectedDay === index && coffeeChatStyles.selectedDayText
-                ]}
-              >
-                {day.dayName[0]}
-              </Text>
-              {availabilityByDay[index]?.length > 0 && (
-                <View style={coffeeChatStyles.availabilityDot} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Time Slots */}
-      {selectedDay !== null && (
-        <ScrollView 
-          style={coffeeChatStyles.timeSlotsContainer}
-          contentContainerStyle={coffeeChatStyles.timeSlotsContentContainer}
-        >
-          <View style={coffeeChatStyles.timeSlotGrid}>
-            {timeSlots.map((slot, index) => (
+  if (showCalendar) {
+    return (
+      <View style={coffeeChatStyles.container}>
+        {/* Weekly Calendar */}
+        <View style={coffeeChatStyles.calendarContainer}>
+          <Text style={coffeeChatStyles.calendarTitle}>Select Your Availability</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={coffeeChatStyles.daysContainer}
+          >
+            {weekDays.map((day, index) => (
               <TouchableOpacity
                 key={index}
                 style={[
-                  coffeeChatStyles.timeSlot,
-                  availabilityByDay[selectedDay]?.includes(slot.time) && 
-                  coffeeChatStyles.selectedTimeSlot,
+                  coffeeChatStyles.dayButton,
+                  selectedDay === index && coffeeChatStyles.selectedDayButton,
                 ]}
-                onPress={() => handleTimeSelect(slot.time)}
+                onPress={() => handleDaySelect(index)}
               >
-                <Text style={[
-                  coffeeChatStyles.timeSlotText,
-                  availabilityByDay[selectedDay]?.includes(slot.time) && 
-                  coffeeChatStyles.selectedTimeSlotText,
-                ]}>
-                  {slot.time}
+                <Text 
+                  style={[
+                    coffeeChatStyles.dayNumber,
+                    selectedDay === index && coffeeChatStyles.selectedDayText
+                  ]}
+                >
+                  {day.dayName[0]}
                 </Text>
+                {availabilityByDay[index]?.length > 0 && (
+                  <View style={coffeeChatStyles.availabilityDot} />
+                )}
               </TouchableOpacity>
             ))}
-          </View>
-        </ScrollView>
-      )}
+          </ScrollView>
+        </View>
 
-      {/* Submit Button */}
-      {Object.keys(availabilityByDay).length > 0 && (
-        <TouchableOpacity 
-          style={coffeeChatStyles.submitButton}
-          onPress={handleSubmitAvailability}
-        >
-          <Text style={coffeeChatStyles.submitButtonText}>
-            Submit Availability
-          </Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Commented out matches list code */}
-      {/*
-      <ScrollView>
-        {matches.map(match => (
-          <View key={match.id} style={coffeeChatStyles.matchCard}>
-            <View style={coffeeChatStyles.profileSection}>
-              <Image source={match.profileImage} style={coffeeChatStyles.profileImage} />
-              <View style={coffeeChatStyles.profileInfo}>
-                <Text style={coffeeChatStyles.name}>{match.name}</Text>
-                <Text style={coffeeChatStyles.title}>{match.title}</Text>
-                <Text style={coffeeChatStyles.location}>{match.location}</Text>
-              </View>
-            </View>
-
-            <View style={coffeeChatStyles.interestsSection}>
-              <View style={coffeeChatStyles.interestGroup}>
-                <Text style={coffeeChatStyles.interestLabel}>Career Interests</Text>
-                <Text style={coffeeChatStyles.interestText}>
-                  {match.careerInterests.join(' • ')}
-                </Text>
-              </View>
-              <View style={coffeeChatStyles.interestGroup}>
-                <Text style={coffeeChatStyles.interestLabel}>Personal Interests</Text>
-                <Text style={coffeeChatStyles.interestText}>
-                  {match.personalInterests.join(' • ')}
-                </Text>
-              </View>
-            </View>
-
-            <View style={coffeeChatStyles.availabilitySection}>
-              <View style={coffeeChatStyles.availabilityInfo}>
-                <Text style={coffeeChatStyles.availabilityLabel}>Availability:</Text>
-                <Text style={coffeeChatStyles.availabilityText}>{match.availability}</Text>
-              </View>
-              <View style={coffeeChatStyles.buttonContainer}>
-                <TouchableOpacity 
-                  style={coffeeChatStyles.scheduleButton}
-                  onPress={() => handleScheduleChat(match)}
+        {/* Time Slots */}
+        {selectedDay !== null && (
+          <ScrollView 
+            style={coffeeChatStyles.timeSlotsContainer}
+            contentContainerStyle={coffeeChatStyles.timeSlotsContentContainer}
+          >
+            <View style={coffeeChatStyles.timeSlotGrid}>
+              {timeSlots.map((slot, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    coffeeChatStyles.timeSlot,
+                    availabilityByDay[selectedDay]?.includes(slot.time) && 
+                    coffeeChatStyles.selectedTimeSlot,
+                  ]}
+                  onPress={() => handleTimeSelect(slot.time)}
                 >
-                  <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
+                  <Text style={[
+                    coffeeChatStyles.timeSlotText,
+                    availabilityByDay[selectedDay]?.includes(slot.time) && 
+                    coffeeChatStyles.selectedTimeSlotText,
+                  ]}>
+                    {slot.time}
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={coffeeChatStyles.messageButton}>
-                  <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
-                </TouchableOpacity>
-              </View>
+              ))}
+            </View>
+          </ScrollView>
+        )}
+
+        {/* Submit Button */}
+        {Object.keys(availabilityByDay).length > 0 && (
+          <TouchableOpacity 
+            style={coffeeChatStyles.submitButton}
+            onPress={handleSubmitAvailability}
+          >
+            <Text style={coffeeChatStyles.submitButtonText}>
+              Submit Availability
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
+  // Show matches list after submission
+  return (
+    <ScrollView>
+      {matches.map(match => (
+        <View key={match.id} style={coffeeChatStyles.matchCard}>
+          <View style={coffeeChatStyles.profileSection}>
+            <Image source={match.profileImage} style={coffeeChatStyles.profileImage} />
+            <View style={coffeeChatStyles.profileInfo}>
+              <Text style={coffeeChatStyles.name}>{match.name}</Text>
+              <Text style={coffeeChatStyles.title}>{match.title} at {match.company}</Text>
+              <Text style={coffeeChatStyles.location}>{match.location}</Text>
             </View>
           </View>
-        ))}
-      </ScrollView>
-      */}
-    </View>
+
+          <View style={coffeeChatStyles.interestsSection}>
+            <View style={coffeeChatStyles.interestGroup}>
+              <Text style={coffeeChatStyles.interestLabel}>Career Interests</Text>
+              <Text style={coffeeChatStyles.interestText}>
+                {match.careerInterests.join(' • ')}
+              </Text>
+            </View>
+            <View style={coffeeChatStyles.interestGroup}>
+              <Text style={coffeeChatStyles.interestLabel}>Personal Interests</Text>
+              <Text style={coffeeChatStyles.interestText}>
+                {match.personalInterests.join(' • ')}
+              </Text>
+            </View>
+          </View>
+
+          <View style={coffeeChatStyles.availabilitySection}>
+            <View style={coffeeChatStyles.availabilityInfo}>
+              <Text style={coffeeChatStyles.availabilityLabel}>Availability:</Text>
+              <Text style={coffeeChatStyles.availabilityText}>{match.availability}</Text>
+            </View>
+            <View style={coffeeChatStyles.buttonContainer}>
+              <TouchableOpacity 
+                style={coffeeChatStyles.scheduleButton}
+                onPress={() => {}}
+              >
+                <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={coffeeChatStyles.messageButton}>
+                <Text style={coffeeChatStyles.messageButtonText}>Message</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
