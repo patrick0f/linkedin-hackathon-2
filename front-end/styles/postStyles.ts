@@ -77,8 +77,6 @@ export const postStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     marginBottom: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   statsText: {
     fontSize: 12,
