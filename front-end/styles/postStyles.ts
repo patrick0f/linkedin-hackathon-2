@@ -77,8 +77,6 @@ export const postStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     marginBottom: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   statsText: {
     fontSize: 12,
@@ -107,7 +105,7 @@ export const postStyles = StyleSheet.create({
   actionTextConnect: {
     marginLeft: 4,
     fontSize: 16,
-    color: '#0077B5',
+    color: '#0a66c2',
     fontWeight: 'bold',
   },
   headerConnect: {
