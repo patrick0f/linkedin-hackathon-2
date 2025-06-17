@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType, Modal } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType, ActivityIndicator, Modal } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
+import { saveUserAvailability } from '../lib/timeUtils';
+import { useUser } from '../contexts/UserContext';
 import CoffeeChatScheduler from './CoffeeChatScheduler';
 import ChatDetail from './ChatDetail';
 
@@ -22,17 +24,23 @@ interface TimeSlot {
 }
 
 const CoffeeChats: React.FC = () => {
+  const { currentUser } = useUser();
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [availabilityByDay, setAvailabilityByDay] = useState<{ [key: number]: string[] }>({});
   const [submittedAvailabilities, setSubmittedAvailabilities] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showScheduler, setShowScheduler] = useState(false);
+<<<<<<< HEAD
   const [showChat, setShowChat] = useState(false);
   const [schedulerInfo, setSchedulerInfo] = useState<{
     name: string;
     time?: string;
     date?: string;
   } | null>(null);
+=======
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
   useEffect(() => {
     if (submittedAvailabilities.length > 0) {
@@ -42,13 +50,13 @@ const CoffeeChats: React.FC = () => {
 
   // Static weekdays array
   const weekDays = [
-    { dayName: 'Mon', dayNumber: 1 },
-    { dayName: 'Tue', dayNumber: 2 },
-    { dayName: 'Wed', dayNumber: 3 },
-    { dayName: 'Thu', dayNumber: 4 },
-    { dayName: 'Fri', dayNumber: 5 },
-    { dayName: 'Sat', dayNumber: 6 },
-    { dayName: 'Sun', dayNumber: 7 },
+    { dayName: 'Mon', dayNumber: 0 }, // Changed to 0-based index to match our time utils
+    { dayName: 'Tue', dayNumber: 1 },
+    { dayName: 'Wed', dayNumber: 2 },
+    { dayName: 'Thu', dayNumber: 3 },
+    { dayName: 'Fri', dayNumber: 4 },
+    { dayName: 'Sat', dayNumber: 5 },
+    { dayName: 'Sun', dayNumber: 6 },
   ];
 
   // Generate time slots from 8 AM to 7 PM
@@ -74,9 +82,25 @@ const CoffeeChats: React.FC = () => {
     });
   };
 
-  const handleSubmitAvailability = () => {
-    setSubmittedAvailabilities(prev => [...prev, availabilityByDay]);
-    setShowCalendar(false);
+  const handleSubmitAvailability = async () => {
+    if (!currentUser) {
+      setError('Please log in to submit availability');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await saveUserAvailability(currentUser.id, availabilityByDay);
+      setSubmittedAvailabilities(prev => [...prev, availabilityByDay]);
+      setShowCalendar(false);
+    } catch (err) {
+      console.error('Error saving availability:', err);
+      setError('Failed to save availability. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleNavigateToChat = (info: { name: string; time?: string; date?: string }) => {
@@ -126,6 +150,9 @@ const CoffeeChats: React.FC = () => {
         {/* Weekly Calendar */}
         <View style={coffeeChatStyles.calendarContainer}>
           <Text style={coffeeChatStyles.calendarTitle}>Select Your Availability</Text>
+          {error && (
+            <Text style={coffeeChatStyles.errorText}>{error}</Text>
+          )}
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -189,12 +216,20 @@ const CoffeeChats: React.FC = () => {
         {/* Submit Button */}
         {Object.keys(availabilityByDay).length > 0 && (
           <TouchableOpacity 
-            style={coffeeChatStyles.submitButton}
+            style={[
+              coffeeChatStyles.submitButton,
+              saving && coffeeChatStyles.submitButtonDisabled
+            ]}
             onPress={handleSubmitAvailability}
+            disabled={saving}
           >
-            <Text style={coffeeChatStyles.submitButtonText}>
-              Submit Availability
-            </Text>
+            {saving ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={coffeeChatStyles.submitButtonText}>
+                Submit Availability
+              </Text>
+            )}
           </TouchableOpacity>
         )}
       </View>

@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
+<<<<<<< HEAD
 import ScheduleConfirmationModal from './ScheduleConfirmationModal';
+=======
+import { Image as RNImage } from 'react-native';
+import MeetingConfirmationModal from './MeetingConfirmationModal';
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface TimeSlot {
   date: string;
@@ -38,6 +43,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     date: string;
   } | null>(null);
   const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [greeting, setGreeting] = useState('Hi Thomas, looking forward to our coffee chat!');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -62,6 +68,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
     ]
   };
 
+<<<<<<< HEAD
   const handleTimeSelect = (time: string, date: string) => {
     setSelectedTime({ time, date });
     setShowConfirmation(true);
@@ -72,12 +79,35 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
       name: matchProfile.name,
       ...(selectedTime && { time: selectedTime.time, date: selectedTime.date })
     });
+=======
+  const handleScheduleMeeting = () => {
+    setShowMeetingModal(false);
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      setShowConfirmation(true);
+    }, 100);
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
   };
 
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
+<<<<<<< HEAD
     setSelectedTime(null);
     onClose();
+=======
+    setShowMeetingModal(false);
+    setSelectedTime(null);
+    setGreeting('Hi Thomas, looking forward to our coffee chat!');
+    // Ensure we close everything before going back
+    setTimeout(() => {
+      onClose();
+    }, 100);
+  };
+
+  const handleTimeSlotPress = (slot: string, date: string) => {
+    setSelectedTime({ time: slot, date });
+    setShowMeetingModal(true);
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
   };
 
   return (
@@ -131,7 +161,11 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                     styles.timeSlot,
                     selectedTime?.time === slot && selectedTime?.date === timeSlot.date && styles.selectedTimeSlot
                   ]}
+<<<<<<< HEAD
                   onPress={() => handleTimeSelect(slot, timeSlot.date)}
+=======
+                  onPress={() => handleTimeSlotPress(slot, timeSlot.date)}
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
                 >
                   <Text style={[
                     styles.timeSlotText,
@@ -147,6 +181,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
       </ScrollView>
 
       <View style={styles.footer}>
+<<<<<<< HEAD
         <TouchableOpacity 
           style={[styles.scheduleButton, !selectedTime && styles.scheduleButtonDisabled]}
           disabled={!selectedTime}
@@ -159,6 +194,9 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
           onPress={handleMessage}
           testID="message-button"
         >
+=======
+        <TouchableOpacity style={styles.messageButton} onPress={onMessage}>
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
           <Ionicons name="chatbubble-outline" size={20} color="#0A66C2" />
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
@@ -171,7 +209,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         onRequestClose={() => setShowMeetingModal(false)}
       >
         <TouchableWithoutFeedback onPress={() => setShowMeetingModal(false)}>
-          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)'}}>
             <TouchableWithoutFeedback onPress={() => {}}>
               <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -187,23 +225,36 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                 <Text style={{ fontSize: 16, color: '#666', marginBottom: 24, width: '100%' }}>
                   {selectedTime ? `${selectedTime.date.replace(/,? \d{4}/, '')}, ${selectedTime.time}` : 'Select a time slot above'}
                 </Text>
-                <TextInput
-                  style={{
-                    width: '100%',
-                    minHeight: 80,
-                    borderColor: '#E0E0E0',
-                    borderWidth: 1,
-                    borderRadius: 12,
-                    padding: 16,
-                    fontSize: 16,
-                    marginBottom: 24,
-                    backgroundColor: '#F5F5F5',
-                    textAlignVertical: 'top',
-                  }}
-                  multiline
-                  value={greeting}
-                  onChangeText={setGreeting}
-                />
+                <View style={{ width: '100%', position: 'relative', marginBottom: 24 }}>
+                  <TextInput
+                    style={{
+                      width: '100%',
+                      minHeight: 80,
+                      borderColor: '#E0E0E0',
+                      borderWidth: 1,
+                      borderRadius: 12,
+                      padding: 16,
+                      fontSize: 16,
+                      backgroundColor: '#F5F5F5',
+                      textAlignVertical: 'top',
+                      paddingRight: 40, // space for the icon
+                    }}
+                    multiline
+                    value={greeting}
+                    onChangeText={setGreeting}
+                  />
+                  <RNImage
+                    source={require('../assets/ai-generated.png')}
+                    style={{
+                      position: 'absolute',
+                      width: 22,
+                      height: 22,
+                      right: 12,
+                      bottom: 12,
+                    }}
+                    accessibilityLabel="AI generated"
+                  />
+                </View>
                 <TouchableOpacity
                   style={{
                     backgroundColor: '#0A66C2',
@@ -214,7 +265,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
                     width: '100%',
                     marginTop: 0,
                   }}
-                  onPress={() => setShowMeetingModal(false)}
+                  onPress={handleScheduleMeeting}
                 >
                   <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Schedule meeting</Text>
                 </TouchableOpacity>
@@ -224,6 +275,7 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
         </TouchableWithoutFeedback>
       </Modal>
 
+<<<<<<< HEAD
       {showConfirmation && selectedTime && (
         <ScheduleConfirmationModal
           scheduledTime={selectedTime.time}
@@ -231,6 +283,15 @@ const CoffeeChatScheduler: React.FC<CoffeeChatSchedulerProps> = ({
           onClose={handleConfirmationClose}
         />
       )}
+=======
+      <MeetingConfirmationModal
+        visible={showConfirmation}
+        onClose={handleConfirmationClose}
+        matchProfile={matchProfile}
+        scheduledTime={selectedTime ? selectedTime.time : ''}
+        scheduledDate={selectedTime ? selectedTime.date.replace(/,? \d{4}/, '') : ''}
+      />
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
     </View>
   );
 };
@@ -364,22 +425,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
     gap: 12,
   },
-  scheduleButton: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#0A66C2',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  scheduleButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   messageButton: {
     flex: 1,
     flexDirection: 'row',
@@ -397,9 +442,6 @@ const styles = StyleSheet.create({
     color: '#0A66C2',
     fontSize: 16,
     fontWeight: '600',
-  },
-  scheduleButtonDisabled: {
-    opacity: 0.5,
   },
 });
 

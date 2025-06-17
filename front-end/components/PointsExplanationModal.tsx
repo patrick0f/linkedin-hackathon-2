@@ -1,57 +1,63 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { StyleSheet } from 'react-native';
 
 interface PointsExplanationModalProps {
+  visible: boolean;
   onClose: () => void;
 }
 
-const PointsExplanationModal: React.FC<PointsExplanationModalProps> = ({ onClose }) => {
+const PointsExplanationModal = ({ visible, onClose }: PointsExplanationModalProps) => {
   return (
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <View style={styles.header}>
-          <View style={styles.headerLine} />
-          <Text style={styles.title}>Why we have points</Text>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <View style={styles.modalContent}>
+              <View style={styles.header}>
+                <View style={styles.headerLine} />
+                <Text style={styles.title}>Points System</Text>
+              </View>
+
+              <View style={styles.contentContainer}>
+                <Text style={styles.subtitle}>What are points?</Text>
+                <Text style={styles.paragraph}>
+                  Points are a way to measure your engagement and activity on LinkedIn. They help you track your progress and encourage meaningful interactions within the community.
+                </Text>
+
+                <Text style={styles.subtitle}>How to earn points:</Text>
+                <Text style={styles.paragraph}>
+                  • Creating posts{'\n'}
+                  • Engaging with others' content{'\n'}
+                  • Participating in discussions{'\n'}
+                  • Maintaining daily activity streaks{'\n'}
+                  • Completing your profile{'\n'}
+                  • Making new connections
+                </Text>
+
+                <Text style={styles.subtitle}>Why points matter:</Text>
+                <Text style={styles.paragraph}>
+                  Points help increase your visibility and credibility on the platform. Higher points can lead to more profile views, connection requests, and opportunities.
+                </Text>
+
+                <Text style={styles.signature}>
+                  - The LinkedIn Team
+                </Text>
+              </View>
+
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeButtonText}>Got it</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-
-        <ScrollView style={styles.contentContainer}>
-          <Text style={styles.subtitle}>
-            Want to snag a free week of LinkedIn Premium and keep the good times rolling?
-          </Text>
-
-          <Text style={styles.paragraph}>
-            It's all about consistent and authentic engagement. Start by regularly posting 
-            valuable content that resonates with your professional network. Don't just scroll by; 
-            comment thoughtfully on others' posts, offering insights or asking relevant 
-            questions. Actively connect with people who can genuinely add to your 
-            professional sphere.
-          </Text>
-
-          <Text style={styles.paragraph}>
-            The more you interact and contribute, the more visible and valuable you become on 
-            the platform. This consistent activity often catches LinkedIn's eye, leading to 
-            promotional offers like that coveted free week of Premium.
-          </Text>
-
-          <Text style={styles.paragraph}>
-            To maintain this streak, simply keep up your genuine engagement. Continue to 
-            share, comment, and connect, making LinkedIn a regular part of your 
-            professional routine. Building a strong, active presence is key to both short-term 
-            perks and long-term career growth.
-          </Text>
-
-          <Text style={styles.signature}>Team LinkedIn</Text>
-        </ScrollView>
-
-        <TouchableOpacity 
-          style={styles.closeButton} 
-          onPress={onClose}
-        >
-          <Text style={styles.closeButtonText}>Close</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </TouchableWithoutFeedback>
+    </Modal>
   );
 };
 

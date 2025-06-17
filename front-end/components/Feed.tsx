@@ -3,12 +3,17 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
+<<<<<<< HEAD
 import PostPointsPopup from './PostPointsPopup';
+=======
+import { useUser } from '../contexts/UserContext';
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
 interface User {
   id: string;
   name: string;
   current_location: string | null;
+  profile_pic?: string | null;
 }
 
 interface PostData {
@@ -23,6 +28,7 @@ interface PostData {
 }
 
 export const Feed = () => {
+  const { currentUser, loading: userLoading } = useUser();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [users, setUsers] = useState<Record<string, User>>({});
   const [loading, setLoading] = useState(true);
@@ -58,12 +64,13 @@ export const Feed = () => {
   };
 
   const handleCreatePost = async () => {
-    if (!newPostText.trim()) return;
+    if (!newPostText.trim() || !currentUser) return;
 
     try {
       const newPost = await postService.createPost({
-        user_id: 'test-user-id',
+        user_id: currentUser.id,
         post_text: newPostText,
+        pfp: currentUser.profile_pic || undefined
       });
       setPosts([newPost, ...posts]);
       setNewPostText('');
@@ -99,7 +106,7 @@ export const Feed = () => {
     return postDate.toLocaleDateString();
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <View style={feedStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#0077B5" />
@@ -115,9 +122,18 @@ export const Feed = () => {
     );
   }
 
+  if (!currentUser) {
+    return (
+      <View style={feedStyles.errorContainer}>
+        <Text style={feedStyles.errorText}>Please log in to view the feed</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
+<<<<<<< HEAD
         <ScrollView style={feedStyles.scrollView}>
           <View style={feedStyles.createPostContainer}>
             <TextInput
@@ -136,7 +152,26 @@ export const Feed = () => {
               <Text style={feedStyles.postButtonText}>Post</Text>
             </TouchableOpacity>
           </View>
+=======
+        <View style={feedStyles.createPostContainer}>
+          <TextInput
+            style={feedStyles.input}
+            value={newPostText}
+            onChangeText={setNewPostText}
+            placeholder="What's on your mind?"
+            multiline
+          />
+          <TouchableOpacity
+            style={feedStyles.postButton}
+            onPress={handleCreatePost}
+            disabled={!newPostText.trim()}
+          >
+            <Text style={feedStyles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+>>>>>>> 208518f9930c7660e3f120d0108cbcf168194de6
 
+        <ScrollView style={feedStyles.scrollView}>
           {posts.map((post) => {
             const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
             return (
@@ -150,7 +185,7 @@ export const Feed = () => {
                 comments={post.comments?.length || 0}
                 onLike={() => handleLikePost(post)}
                 imageUrl={post.pic_link}
-                profilePicUrl={post.pfp || undefined}
+                profilePicUrl={user.profile_pic || undefined}
               />
             );
           })}

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { headerStyles } from '../styles/headerStyles';
 import { ProfileOverlay } from './ProfileOverlay';
 import { AntDesign } from '@expo/vector-icons';
+import { useUser } from '../contexts/UserContext';
 
 interface HeaderProps {
   onMessagePress: () => void;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export const Header = ({ onMessagePress }: HeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
+  const { currentUser } = useUser();
 
   return (
     <>
@@ -18,7 +20,11 @@ export const Header = ({ onMessagePress }: HeaderProps) => {
         <TouchableOpacity onPress={() => setShowProfile(true)}>
           <Image
             style={headerStyles.profilePic}
-            source={require('../assets/default-profile.png')}
+            source={
+              currentUser?.profile_pic
+                ? { uri: currentUser.profile_pic }
+                : require('../assets/default-profile.png')
+            }
           />
         </TouchableOpacity>
         

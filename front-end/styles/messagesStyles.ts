@@ -149,4 +149,20 @@ export const messagesStyles = StyleSheet.create({
     borderRadius: 4,
     marginRight: 6,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  errorText: {
+    color: '#666',
+    fontSize: 16,
+    textAlign: 'center',
+  },
 }); 
