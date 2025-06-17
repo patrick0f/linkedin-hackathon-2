@@ -27,6 +27,7 @@ interface ChatDetailProps {
   onClose: () => void;
   onScheduleChat: () => void;
   isScheduler?: boolean;
+  onNavigateToCoffeeChats: () => void;
 }
 
 // Different conversation starters based on the user's name
@@ -103,7 +104,8 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
   contact,
   onClose,
   onScheduleChat,
-  isScheduler = false
+  isScheduler = false,
+  onNavigateToCoffeeChats
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [message, setMessage] = useState('');
@@ -182,6 +184,17 @@ const ChatDetail: React.FC<ChatDetailProps> = ({
             <Text style={chatDetailStyles.optionText}>{option.label}</Text>
           </TouchableOpacity>
         ))}
+      </View>
+    );
+  };
+
+  const renderSchedulerMessage = () => {
+    if (!isScheduler) return null;
+    return (
+      <View style={chatDetailStyles.schedulerContainer}>
+        <Text style={chatDetailStyles.schedulerTitle}>
+          Schedule a coffee chat with {contact.name}
+        </Text>
       </View>
     );
   };

@@ -103,6 +103,7 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
         }}
         onClose={handleBackToMessages}
         onScheduleChat={() => setShowCoffeeChats(true)}
+        onNavigateToCoffeeChats={() => setShowCoffeeChats(true)}
       />
     );
   }

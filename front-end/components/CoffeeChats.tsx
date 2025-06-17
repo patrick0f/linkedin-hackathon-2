@@ -143,6 +143,7 @@ const CoffeeChats: React.FC = () => {
           setShowScheduler(true);
         }}
         isScheduler={true}
+        onNavigateToCoffeeChats={() => setShowScheduler(true)}
       />
     );
   }
