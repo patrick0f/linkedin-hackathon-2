@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { postStyles } from '../styles/postStyles';
 
@@ -10,15 +10,32 @@ interface PostProps {
   content: string;
   likes: number;
   comments: number;
+  onLike?: () => void;
+  imageUrl?: string | null;
+  profilePicUrl?: string;
 }
 
-export const Post = ({ name, title, timePosted, content, likes, comments }: PostProps) => {
+export const Post = ({ 
+  name, 
+  title, 
+  timePosted, 
+  content, 
+  likes, 
+  comments, 
+  onLike, 
+  imageUrl,
+  profilePicUrl 
+}: PostProps) => {
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   return (
     <View style={postStyles.container}>
       <View style={postStyles.header}>
         <Image
           style={postStyles.profilePic}
-          source={require('../assets/default-profile.png')}
+          source={profilePicUrl ? { uri: profilePicUrl } : require('../assets/default-profile.png')}
+          defaultSource={require('../assets/default-profile.png')}
         />
         <View style={postStyles.headerText}>
           <Text style={postStyles.name}>{name}</Text>
@@ -35,23 +52,34 @@ export const Post = ({ name, title, timePosted, content, likes, comments }: Post
 
       <Text style={postStyles.content}>{content}</Text>
 
+      {imageUrl && !imageError && (
+        <View style={postStyles.imageContainer}>
+          <Image
+            source={{ uri: imageUrl }}
+            style={postStyles.contentImage}
+            resizeMode="contain"
+            onLoadStart={() => setImageLoading(true)}
+            onLoadEnd={() => setImageLoading(false)}
+            onError={() => setImageError(true)}
+          />
+          {imageLoading && (
+            <ActivityIndicator 
+              size="large" 
+              color="#0077B5"
+              style={{ position: 'absolute', top: '50%', left: '50%', marginLeft: -20, marginTop: -20 }}
+            />
+          )}
+        </View>
+      )}
+
       <View style={postStyles.stats}>
         <Text style={postStyles.statsText}>{likes} likes </Text>
         <Text style={postStyles.statsText}>{comments} comments</Text>
       </View>
 
       <View style={postStyles.actions}>
+        <TouchableOpacity style={postStyles.actionButton} onPress={onLike}>
 
-      <TouchableOpacity style={postStyles.actionButton}>
-      
-          <Image
-            style={postStyles.profilePicBar}
-            source={require('../assets/default-profile.png')}
-          />
-
-        </TouchableOpacity>
-
-        <TouchableOpacity style={postStyles.actionButton}>
           <Ionicons name="thumbs-up-outline" size={20} color="#666" />
           <Text style={postStyles.actionText}>Like</Text>
         </TouchableOpacity>

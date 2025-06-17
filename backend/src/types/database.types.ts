@@ -1,12 +1,21 @@
-export type User = {
+export interface User {
   id: string;
-  name: string | null;
-  current_location: string | null;
-  connections: string[] | null;
-  streak_count: number;
-  time_avail: string[] | null;
-  profile_pic: string | null;
-};
+  name: string;
+  current_location?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  post_text: string | null;
+  pic_link: string | null;
+  comments: string[] | null;
+  num_of_likes: number;
+  pfp: string | null;
+  user?: User;
+}
 
 export type Job = {
   id: string;
@@ -15,15 +24,6 @@ export type Job = {
   position: string | null;
   industry: string | null;
   level: string | null;
-};
-
-export type Post = {
-  id: string;
-  user_id: string;
-  post_text: string | null;
-  pic_link: string | null;
-  comments: any[] | null;
-  num_of_likes: number;
 };
 
 export type Skill = {

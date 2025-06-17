@@ -1,82 +1,158 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
+import { postService, userService } from '../services/api';
+
+interface User {
+  id: string;
+  name: string;
+  current_location: string | null;
+}
+
+interface PostData {
+  id: string;
+  user_id: string;
+  post_text: string | null;
+  pic_link: string | null;
+  comments: string[] | null;
+  num_of_likes: number;
+  pfp: string | null;
+  created_at?: string;
+}
 
 export const Feed = () => {
-  const mockPosts = [
-    {
-      name: 'Stanislav Naida',
-      title: 'Java Technical Lead — Ciklum',
-      timePosted: '16h',
-      content: 'Hello, I am looking for a new career opportunity and would appreciate your support. Thanks in advance for any contact recommendation, advice, or referral.',
-      likes: 77,
-      comments: 11,
-    },
-    {
-      name: 'Sarah Chen',
-      title: 'Senior Product Manager at Google',
-      timePosted: '1h',
-      content: '🎉 Excited to announce that our team just launched a new feature that will help millions of users! Proud of what we\'ve accomplished. #ProductManagement #Innovation',
-      likes: 1243,
-      comments: 89,
-    },
-    {
-      name: 'Alex Thompson',
-      title: 'Tech Recruiter | Helping talents find their dream jobs',
-      timePosted: '3h',
-      content: '🚨 HIRING ALERT 🚨\n\nMy client, a fast-growing startup in the AI space, is looking for:\n- Senior Frontend Engineers (React)\n- ML Engineers\n- DevOps Engineers\n\nRemote-first, competitive salary + equity. DM me if interested!',
-      likes: 156,
-      comments: 42,
-    },
-    {
-      name: 'Dr. Emily Rodriguez',
-      title: 'AI Research Scientist | PhD in Machine Learning',
-      timePosted: '5h',
-      content: 'Just published our latest research paper on "Efficient Large Language Models for Mobile Devices" in Nature AI. Link in comments! #AI #MachineLearning #Research',
-      likes: 892,
-      comments: 134,
-    },
-    {
-      name: 'Vera Drozdova',
-      title: 'UI/UX Designer',
-      timePosted: '17h',
-      content: 'Just finished designing a new Ferry app for Apple Watch! Check out the screens.',
-      likes: 45,
-      comments: 8,
-    },
-    {
-      name: 'Mike Johnson',
-      title: 'Startup Founder & CEO',
-      timePosted: '23h',
-      content: '💡 Leadership Lesson #42:\n\nHiring for culture fit is important, but hiring for culture ADD is even better.\n\nDiversity of thought leads to innovation.\n\nWhat are your thoughts on this? 🤔',
-      likes: 2891,
-      comments: 245,
-    },
-    {
-      name: 'Priya Patel',
-      title: 'Full Stack Developer | Web3 Enthusiast',
-      timePosted: '1d',
-      content: '🎓 Just completed the Advanced Ethereum Development course! Excited to build decentralized applications that can make a real impact.\n\nOpen to Web3 opportunities! #Ethereum #Blockchain #Web3',
-      likes: 423,
-      comments: 37,
-    },
-    {
-      name: 'David Kim',
-      title: 'Engineering Manager at Netflix',
-      timePosted: '1d',
-      content: 'We\'re scaling our platform team! Looking for:\n\n✨ Senior Backend Engineers\n✨ Infrastructure Engineers\n✨ Performance Engineers\n\nNetflix offers:\n- Competitive pay\n- Great benefits\n- Amazing culture\n\nDM me for referrals!',
-      likes: 678,
-      comments: 92,
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [users, setUsers] = useState<Record<string, User>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newPostText, setNewPostText] = useState('');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [postsData, usersData] = await Promise.all([
+        postService.getAllPosts(),
+        userService.getAllUsers()
+      ]);
+
+      const usersMap = usersData.reduce((acc: Record<string, User>, user: User) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      setPosts(postsData);
+      setUsers(usersMap);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load data');
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleCreatePost = async () => {
+    if (!newPostText.trim()) return;
+
+    try {
+      const newPost = await postService.createPost({
+        user_id: 'test-user-id',
+        post_text: newPostText,
+      });
+      setPosts([newPost, ...posts]);
+      setNewPostText('');
+    } catch (err) {
+      console.error('Error creating post:', err);
+      setError('Failed to create post');
+    }
+  };
+
+  const handleLikePost = async (post: PostData) => {
+    try {
+      const updatedPost = await postService.updatePost(post.id, {
+        num_of_likes: (post.num_of_likes || 0) + 1,
+      });
+      setPosts(posts.map(p => p.id === post.id ? updatedPost : p));
+    } catch (err) {
+      console.error('Error liking post:', err);
+    }
+  };
+
+  const formatTimePosted = (created_at?: string) => {
+    if (!created_at) return 'Just now';
+
+    const now = new Date();
+    const postDate = new Date(created_at);
+    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`;
+    return postDate.toLocaleDateString();
+  };
+
+  if (loading) {
+    return (
+      <View style={feedStyles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0077B5" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={feedStyles.errorContainer}>
+        <Text style={feedStyles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={feedStyles.container}>
-      {mockPosts.map((post, index) => (
-        <Post key={index} {...post} />
-      ))}
-      <View style={feedStyles.bottomPadding} />
-    </ScrollView>
+    <View style={feedStyles.container}>
+      <View style={feedStyles.contentContainer}>
+        <View style={feedStyles.createPostContainer}>
+          <TextInput
+            style={feedStyles.input}
+            value={newPostText}
+            onChangeText={setNewPostText}
+            placeholder="What's on your mind?"
+            multiline
+          />
+          <TouchableOpacity
+            style={feedStyles.postButton}
+            onPress={handleCreatePost}
+            disabled={!newPostText.trim()}
+          >
+            <Text style={feedStyles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView style={feedStyles.scrollView}>
+          {posts.map((post) => {
+            const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
+            return (
+              <Post
+                key={post.id}
+                name={user.name}
+                title={user.current_location || 'No location'}
+                timePosted={formatTimePosted(post.created_at)}
+                content={post.post_text || ''}
+                likes={post.num_of_likes}
+                comments={post.comments?.length || 0}
+                onLike={() => handleLikePost(post)}
+                imageUrl={post.pic_link}
+                profilePicUrl={post.pfp || undefined}
+              />
+            );
+          })}
+          <View style={feedStyles.bottomPadding} />
+        </ScrollView>
+      </View>
+    </View>
   );
 }; 
