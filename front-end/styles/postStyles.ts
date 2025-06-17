@@ -26,6 +26,12 @@ export const postStyles = StyleSheet.create({
     backgroundColor: '#f0f0f0', // Placeholder color while loading
     objectFit: 'cover',
   },
+  profilePicBar: {
+   flexDirection: 'row',
+    alignItems: 'center',
+    width: 35,
+    height: 35,
+  },
   headerText: {
     flex: 1,
   },
@@ -71,6 +77,8 @@ export const postStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   statsText: {
     fontSize: 12,
@@ -94,5 +102,16 @@ export const postStyles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     color: '#666',
+    fontWeight: 'bold',
+  },
+  actionTextConnect: {
+    marginLeft: 4,
+    fontSize: 16,
+    color: '#0a66c2',
+    fontWeight: 'bold',
+  },
+  headerConnect: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 }); 

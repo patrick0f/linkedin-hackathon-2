@@ -42,6 +42,12 @@ export const Post = ({
           <Text style={postStyles.title}>{title}</Text>
           <Text style={postStyles.timePosted}>{timePosted}</Text>
         </View>
+
+        <View style={postStyles.headerConnect}>
+          <Ionicons name="person-add-sharp" size={20} color="#0a66c2" />
+          <Text style={postStyles.actionTextConnect}>Connect</Text>
+        </View>
+
       </View>
 
       <Text style={postStyles.content}>{content}</Text>
@@ -67,11 +73,13 @@ export const Post = ({
       )}
 
       <View style={postStyles.stats}>
-        <Text style={postStyles.statsText}>{likes} likes • {comments} comments</Text>
+        <Text style={postStyles.statsText}>{likes} likes </Text>
+        <Text style={postStyles.statsText}>{comments} comments</Text>
       </View>
 
       <View style={postStyles.actions}>
         <TouchableOpacity style={postStyles.actionButton} onPress={onLike}>
+
           <Ionicons name="thumbs-up-outline" size={20} color="#666" />
           <Text style={postStyles.actionText}>Like</Text>
         </TouchableOpacity>
@@ -83,7 +91,12 @@ export const Post = ({
 
         <TouchableOpacity style={postStyles.actionButton}>
           <Ionicons name="share-outline" size={20} color="#666" />
-          <Text style={postStyles.actionText}>Share</Text>
+          <Text style={postStyles.actionText}>Repost</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={postStyles.actionButton}>
+          <Ionicons name="share-outline" size={20} color="#666" />
+          <Text style={postStyles.actionText}>Send</Text>
         </TouchableOpacity>
       </View>
     </View>
