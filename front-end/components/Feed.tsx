@@ -9,6 +9,7 @@ interface User {
   id: string;
   name: string;
   current_location: string | null;
+  profile_pic?: string | null;
 }
 
 interface PostData {
@@ -157,7 +158,7 @@ export const Feed = () => {
                 comments={post.comments?.length || 0}
                 onLike={() => handleLikePost(post)}
                 imageUrl={post.pic_link}
-                profilePicUrl={post.pfp || undefined}
+                profilePicUrl={user.profile_pic || undefined}
               />
             );
           })}
