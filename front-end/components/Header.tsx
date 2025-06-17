@@ -4,7 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { headerStyles } from '../styles/headerStyles';
 import { ProfileOverlay } from './ProfileOverlay';
 
-export const Header = () => {
+interface HeaderProps {
+  onMessagePress: () => void;
+}
+
+export const Header = ({ onMessagePress }: HeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
 
   return (
@@ -26,7 +30,7 @@ export const Header = () => {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onMessagePress}>
           <Ionicons name="chatbubbles" size={24} color="#666" />
         </TouchableOpacity>
       </View>
