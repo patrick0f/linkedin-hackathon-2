@@ -3,6 +3,7 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
+import PostPointsPopup from './PostPointsPopup';
 
 interface User {
   id: string;
@@ -27,6 +28,7 @@ export const Feed = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPostText, setNewPostText] = useState('');
+  const [showPostPoints, setShowPostPoints] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -65,6 +67,7 @@ export const Feed = () => {
       });
       setPosts([newPost, ...posts]);
       setNewPostText('');
+      setShowPostPoints(true);
     } catch (err) {
       console.error('Error creating post:', err);
       setError('Failed to create post');
@@ -128,6 +131,7 @@ export const Feed = () => {
               style={feedStyles.postButton}
               onPress={handleCreatePost}
               disabled={!newPostText.trim()}
+              testID="post-button"
             >
               <Text style={feedStyles.postButtonText}>Post</Text>
             </TouchableOpacity>
@@ -153,6 +157,10 @@ export const Feed = () => {
           <View style={feedStyles.bottomPadding} />
         </ScrollView>
       </View>
+
+      {showPostPoints && (
+        <PostPointsPopup onFadeOut={() => setShowPostPoints(false)} />
+      )}
     </View>
   );
 }; 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons , Feather, FontAwesome, SimpleLineIcons} from '@expo/vector-icons';
 import { postStyles } from '../styles/postStyles';
+import PointsPopup from './PointsPopup';
 
 interface PostProps {
   name: string;
@@ -28,6 +29,12 @@ export const Post = ({
 }: PostProps) => {
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [showPointsPopup, setShowPointsPopup] = useState(false);
+
+  const handleLike = () => {
+    onLike?.();
+    setShowPointsPopup(true);
+  };
 
   return (
     <View style={postStyles.container}>
@@ -78,8 +85,11 @@ export const Post = ({
       </View>
 
       <View style={postStyles.actions}>
-        <TouchableOpacity style={postStyles.actionButton} onPress={onLike}>
-
+        <TouchableOpacity
+          style={postStyles.actionButton}
+          onPress={handleLike}
+          testID="like-button"
+        >
           <SimpleLineIcons name="like" size={20} color="#666" />
           <Text style={postStyles.actionText}>Like</Text>
         </TouchableOpacity>
@@ -99,6 +109,10 @@ export const Post = ({
           <Text style={postStyles.actionText}>Send</Text>
         </TouchableOpacity>
       </View>
+
+      {showPointsPopup && (
+        <PointsPopup onFadeOut={() => setShowPointsPopup(false)} />
+      )}
     </View>
   );
 }; 
