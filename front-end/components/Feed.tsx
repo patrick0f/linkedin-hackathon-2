@@ -3,6 +3,7 @@ import { ScrollView, View, TextInput, TouchableOpacity, Text, ActivityIndicator 
 import { Post } from './Post';
 import { feedStyles } from '../styles/feedStyles';
 import { postService, userService } from '../services/api';
+import PostPointsPopup from './PostPointsPopup';
 import { useUser } from '../contexts/UserContext';
 
 interface User {
@@ -129,24 +130,28 @@ export const Feed = () => {
   return (
     <View style={feedStyles.container}>
       <View style={feedStyles.contentContainer}>
-        <View style={feedStyles.createPostContainer}>
-          <TextInput
-            style={feedStyles.input}
-            value={newPostText}
-            onChangeText={setNewPostText}
-            placeholder="What's on your mind?"
-            multiline
-          />
-          <TouchableOpacity
-            style={feedStyles.postButton}
-            onPress={handleCreatePost}
-            disabled={!newPostText.trim()}
-          >
-            <Text style={feedStyles.postButtonText}>Post</Text>
-          </TouchableOpacity>
-        </View>
-
         <ScrollView style={feedStyles.scrollView}>
+          <View style={feedStyles.createPostContainer}>
+            <TextInput
+              style={feedStyles.input}
+              value={newPostText}
+              onChangeText={setNewPostText}
+              placeholder="What's on your mind?"
+              multiline
+            />
+            <TouchableOpacity
+              style={[
+                feedStyles.postButton,
+                !newPostText.trim() && feedStyles.postButtonDisabled
+              ]}
+              onPress={handleCreatePost}
+              disabled={!newPostText.trim()}
+              testID="post-button"
+            >
+              <Text style={feedStyles.postButtonText}>Post</Text>
+            </TouchableOpacity>
+          </View>
+
           {posts.map((post) => {
             const user = users[post.user_id] || { name: 'Unknown User', current_location: null };
             return (

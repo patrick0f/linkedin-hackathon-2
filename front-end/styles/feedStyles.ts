@@ -3,20 +3,20 @@ import { StyleSheet } from 'react-native';
 export const feedStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f2ef',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     width: '100%',
   },
   contentContainer: {
     width: '100%',
-    maxWidth: 600, // Match the post container max width
+    maxWidth: 680,
     flex: 1,
   },
   scrollView: {
     width: '100%',
   },
   bottomPadding: {
-    height: 20,
+    height: 80,
   },
   loadingContainer: {
     flex: 1,
@@ -30,35 +30,37 @@ export const feedStyles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    color: 'red',
+    color: '#666',
     fontSize: 16,
     textAlign: 'center',
   },
   createPostContainer: {
+    backgroundColor: '#FFFFFF',
     padding: 16,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    width: '100%',
-    position: 'relative', // Ensure it's not sticky
+    borderBottomColor: '#E0E0E0',
   },
   input: {
-    minHeight: 100,
-    padding: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F3F6F8',
     borderRadius: 8,
-    marginBottom: 12,
+    padding: 12,
     fontSize: 16,
+    minHeight: 100,
+    textAlignVertical: 'top',
+    marginBottom: 12,
   },
   postButton: {
-    backgroundColor: '#0077B5',
+    backgroundColor: '#0A66C2',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 20,
     alignItems: 'center',
   },
+  postButtonDisabled: {
+    backgroundColor: '#B2B2B2',
+  },
   postButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 }); 
