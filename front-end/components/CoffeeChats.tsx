@@ -1,25 +1,30 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
+import CoffeeChatScheduler from './CoffeeChatScheduler';
 
 interface MatchProfile {
   id: string;
   name: string;
   title: string;
+  company: string;
   location: string;
-  profileImage: ImageSourcePropType;
+  profileImage: any;
   careerInterests: string[];
   personalInterests: string[];
   availability: string;
 }
 
 const CoffeeChats: React.FC = () => {
+  const [selectedMatch, setSelectedMatch] = useState<MatchProfile | null>(null);
+
   // Mock data - replace with actual API call later
   const matches: MatchProfile[] = [
     {
       id: '1',
       name: 'Thomas Simmons',
-      title: 'Product Designer at Figma',
+      title: 'Product Designer',
+      company: 'Figma',
       location: 'San Francisco, CA',
       profileImage: require('../assets/default-profile.png'),
       careerInterests: ['Product Strategy', 'UX Design', 'Agile Methodology'],
@@ -28,6 +33,18 @@ const CoffeeChats: React.FC = () => {
     },
     // Add more mock profiles here
   ];
+
+  if (selectedMatch) {
+    return (
+      <CoffeeChatScheduler
+        onClose={() => setSelectedMatch(null)}
+        onMessage={() => {
+          // Handle message action
+          setSelectedMatch(null);
+        }}
+      />
+    );
+  }
 
   return (
     <ScrollView style={coffeeChatStyles.container}>
@@ -40,7 +57,7 @@ const CoffeeChats: React.FC = () => {
             />
             <View style={coffeeChatStyles.profileInfo}>
               <Text style={coffeeChatStyles.name}>{match.name}</Text>
-              <Text style={coffeeChatStyles.title}>{match.title}</Text>
+              <Text style={coffeeChatStyles.title}>{match.title} at {match.company}</Text>
               <Text style={coffeeChatStyles.location}>{match.location}</Text>
             </View>
           </View>
@@ -66,7 +83,10 @@ const CoffeeChats: React.FC = () => {
               <Text style={coffeeChatStyles.availabilityText}>{match.availability}</Text>
             </View>
             <View style={coffeeChatStyles.buttonContainer}>
-              <TouchableOpacity style={coffeeChatStyles.scheduleButton}>
+              <TouchableOpacity 
+                style={coffeeChatStyles.scheduleButton}
+                onPress={() => setSelectedMatch(match)}
+              >
                 <Text style={coffeeChatStyles.scheduleButtonText}>Schedule Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity style={coffeeChatStyles.messageButton}>
