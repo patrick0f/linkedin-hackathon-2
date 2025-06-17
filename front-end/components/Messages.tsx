@@ -164,12 +164,14 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
               filter === activeFilter && messagesStyles.activeFilter,
             ]}
             onPress={() => setActiveFilter(filter)}
+            testID={`filter-button-${filter.toLowerCase().replace(' ', '-')}`}
           >
             <Text
               style={[
                 messagesStyles.filterText,
                 filter === activeFilter && messagesStyles.activeFilterText,
               ]}
+              testID={`filter-text-${filter.toLowerCase().replace(' ', '-')}`}
             >
               {filter}
             </Text>

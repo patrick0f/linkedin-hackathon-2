@@ -3,6 +3,7 @@ import { View, TextInput, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { headerStyles } from '../styles/headerStyles';
 import { ProfileOverlay } from './ProfileOverlay';
+import { AntDesign } from '@expo/vector-icons';
 
 interface HeaderProps {
   onMessagePress: () => void;
@@ -31,11 +32,11 @@ export const Header = ({ onMessagePress }: HeaderProps) => {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onMessagePress}>
-          <Ionicons name="chatbubbles" size={24} color="#666" />
+          <AntDesign name="form" size={24} color="#666" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={onMessagePress}>
-          <Ionicons name="chatbubbles" size={24} color="#666" />
+          <Ionicons name="chatbubble-ellipses-sharp" size={24} color="#666" />
         </TouchableOpacity>
       </View>
 

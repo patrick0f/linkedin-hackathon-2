@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { bottomNavStyles } from '../styles/bottomNavStyles';
 
 export const BottomNavigation = () => {
@@ -12,7 +13,7 @@ export const BottomNavigation = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={bottomNavStyles.tab}>
-        <Ionicons name="add-circle" size={24} color="#666" />
+        <FontAwesome name="youtube-play" size={24} color="#666" />
         <Text style={bottomNavStyles.tabText}>Video</Text>
       </TouchableOpacity>
       

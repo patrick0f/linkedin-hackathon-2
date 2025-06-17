@@ -27,8 +27,8 @@ export const Post = ({ name, title, timePosted, content, likes, comments }: Post
         </View>
 
         <View style={postStyles.headerConnect}>
-          <Ionicons name="ellipsis-vertical-outline" size={20} color="#666" />
-          <Text style={postStyles.actionText}>Connect</Text>
+          <Ionicons name="person-add-sharp" size={20} color="#0a66c2" />
+          <Text style={postStyles.actionTextConnect}>Connect</Text>
         </View>
 
       </View>
@@ -45,7 +45,7 @@ export const Post = ({ name, title, timePosted, content, likes, comments }: Post
       <TouchableOpacity style={postStyles.actionButton}>
       
           <Image
-            style={postStyles.profilePic}
+            style={postStyles.profilePicBar}
             source={require('../assets/default-profile.png')}
           />
 

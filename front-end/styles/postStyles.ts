@@ -20,8 +20,8 @@ export const postStyles = StyleSheet.create({
   profilePicBar: {
    flexDirection: 'row',
     alignItems: 'center',
-    width: 10,
-    height: 10,
+    width: 35,
+    height: 35,
   },
   headerText: {
     flex: 1,
@@ -72,6 +72,13 @@ export const postStyles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     color: '#666',
+    fontWeight: 'bold',
+  },
+  actionTextConnect: {
+    marginLeft: 4,
+    fontSize: 16,
+    color: '#0a66c2',
+    fontWeight: 'bold',
   },
   headerConnect: {
     flexDirection: 'row',
