@@ -4,7 +4,7 @@ AI-powered networking features and smart coffee-chat scheduling!
 
 ## Features
 
-- Points-based exploratory rewards system
+- ⭐ Points-based exploratory rewards system
 - 🤖 AI-powered networking suggestions
 - 📅 Smart coffee chat scheduling
 - 🎯 Personalized conversation starters

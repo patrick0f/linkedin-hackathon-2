@@ -83,6 +83,7 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
         contact={selectedChat}
         onClose={() => setSelectedChat(null)}
         onScheduleChat={handleScheduleChat}
+        onNavigateToCoffeeChats={handleScheduleChat}
       />
     );
   }
