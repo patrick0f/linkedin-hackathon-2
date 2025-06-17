@@ -52,7 +52,7 @@ const PointsPopup: React.FC<PointsPopupProps> = ({ onFadeOut }) => {
       testID="points-popup"
     >
       <Ionicons name="star" size={28} color="#FFD700" style={styles.icon} />
-      <Text style={styles.text}>1 point</Text>
+      <Text style={styles.text}>+5 points</Text>
     </Animated.View>
   );
 };

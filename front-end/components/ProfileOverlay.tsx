@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Modal, TouchableWithoutFeedback } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { profileOverlayStyles } from '../styles/profileOverlayStyles';
 import PointsExplanationModal from './PointsExplanationModal';
 import { useUser } from '../contexts/UserContext';
@@ -76,24 +76,44 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
               </View>
 
               <View style={profileOverlayStyles.streakSection}>
-                <View style={profileOverlayStyles.pointsContainer}>
-                  <Text style={profileOverlayStyles.pointsNumber}>
-                    {currentUser?.streak_count || 0}
-                  </Text>
-                  <Text style={profileOverlayStyles.pointsLabel}>points</Text>
-                  <View style={profileOverlayStyles.progressBarContainer}>
-                    <View style={[profileOverlayStyles.progressBar, { width: '0%' }]} />
-                    <View style={profileOverlayStyles.linkedInIcon}>
-                      <FontAwesome name="linkedin" size={12} color="#fff" />
-                    </View>
+                {currentUser?.streak_count && currentUser.streak_count >= 1000 ? (
+                  <View style={profileOverlayStyles.streakCounter}>
+                    <MaterialCommunityIcons 
+                      name="fire" 
+                      size={32} 
+                      color="#DAA520" 
+                      style={profileOverlayStyles.streakIcon}
+                    />
+                    <Text style={profileOverlayStyles.streakText}>
+                      0
+                    </Text>
+                    <Text style={profileOverlayStyles.streakLabel}>day streak</Text>
                   </View>
-                  <TouchableOpacity 
-                    style={profileOverlayStyles.whyPointsButton}
-                    onPress={() => setShowPointsModal(true)}
-                  >
-                    <Text style={profileOverlayStyles.whyPointsText}>Why we have points</Text>
-                  </TouchableOpacity>
-                </View>
+                ) : (
+                  <View style={profileOverlayStyles.pointsContainer}>
+                    <Text style={profileOverlayStyles.pointsNumber}>
+                      {currentUser?.streak_count || 0}
+                    </Text>
+                    <Text style={profileOverlayStyles.pointsLabel}>points</Text>
+                    <View style={profileOverlayStyles.progressBarContainer}>
+                      <View 
+                        style={[
+                          profileOverlayStyles.progressBar, 
+                          { width: `${Math.min((currentUser?.streak_count || 0) / 10, 100)}%` }
+                        ]} 
+                      />
+                      <View style={profileOverlayStyles.linkedInIcon}>
+                        <FontAwesome name="linkedin" size={12} color="#fff" />
+                      </View>
+                    </View>
+                    <TouchableOpacity 
+                      style={profileOverlayStyles.whyPointsButton}
+                      onPress={() => setShowPointsModal(true)}
+                    >
+                      <Text style={profileOverlayStyles.whyPointsText}>Why we have points</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
 
               <View style={profileOverlayStyles.premiumSection}>

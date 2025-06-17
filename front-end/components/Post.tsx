@@ -4,6 +4,7 @@ import { Ionicons , Feather, FontAwesome, SimpleLineIcons} from '@expo/vector-ic
 import { postStyles } from '../styles/postStyles';
 import { postService } from '../services/api';
 import { useUser } from '../contexts/UserContext';
+import PointsPopup from './PointsPopup';
 
 interface PostProps {
   post_id: string;
@@ -38,6 +39,7 @@ export const Post = ({
   const [likeCount, setLikeCount] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLiking, setIsLiking] = useState(false);
+  const [showPointsPopup, setShowPointsPopup] = useState(false);
 
   const handleLike = async () => {
     if (isLiking || userLoading || !currentUser) {
@@ -63,6 +65,9 @@ export const Post = ({
       setLikeCount(newLikeCount);
       setIsLiked(!isLiked);
       onLikeUpdate?.(newLikeCount);
+      if (!isLiked) {
+        setShowPointsPopup(true);
+      }
     } catch (error: any) {
       console.error('Error liking post:', {
         error,
@@ -77,6 +82,9 @@ export const Post = ({
 
   return (
     <View style={postStyles.container}>
+      {showPointsPopup && (
+        <PointsPopup onFadeOut={() => setShowPointsPopup(false)} />
+      )}
       <View style={postStyles.header}>
         <Image
           style={postStyles.profilePic}

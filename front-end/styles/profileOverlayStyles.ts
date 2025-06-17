@@ -199,4 +199,23 @@ export const profileOverlayStyles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
+  streakCounter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  streakIcon: {
+    marginRight: 8,
+  },
+  streakText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#DAA520',
+  },
+  streakLabel: {
+    fontSize: 16,
+    color: '#666',
+    marginLeft: 8,
+  },
 }); 

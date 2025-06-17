@@ -74,8 +74,6 @@ export const postStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
     marginBottom: 8,
   },
   statsText: {
@@ -85,8 +83,6 @@ export const postStyles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
     paddingTop: 8,
   },
   actionButton: {
