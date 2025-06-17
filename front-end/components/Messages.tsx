@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import { messagesStyles } from '../styles/messagesStyles';
 import CoffeeChats from './CoffeeChats';
+import ChatDetail from './ChatDetail';
 
 const MESSAGES = [
   {
@@ -51,6 +52,34 @@ const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread', 'Drafts', '
 
 export const Messages = ({ onClose }: { onClose: () => void }) => {
   const [activeFilter, setActiveFilter] = useState('Focused');
+  const [selectedChat, setSelectedChat] = useState<null | {
+    name: string;
+    avatar: any;
+    status?: string;
+  }>(null);
+
+  const handleChatPress = (message: any) => {
+    setSelectedChat({
+      name: message.name,
+      avatar: message.avatar,
+      status: message.online ? 'Online' : undefined,
+    });
+  };
+
+  const handleScheduleChat = () => {
+    setActiveFilter('Coffee Chats');
+    setSelectedChat(null);
+  };
+
+  if (selectedChat) {
+    return (
+      <ChatDetail
+        contact={selectedChat}
+        onClose={() => setSelectedChat(null)}
+        onScheduleChat={handleScheduleChat}
+      />
+    );
+  }
 
   const renderContent = () => {
     if (activeFilter === 'Coffee Chats') {
@@ -64,6 +93,7 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
             key={message.id} 
             style={messagesStyles.messageItem}
             testID={`message-item-${message.id}`}
+            onPress={() => handleChatPress(message)}
           >
             <View style={messagesStyles.avatarContainer} testID="avatar-container">
               <Image 
