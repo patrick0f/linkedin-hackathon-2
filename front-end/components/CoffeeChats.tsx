@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, ImageSourcePropType } from 'react-native';
 import { coffeeChatStyles } from '../styles/coffeeChatStyles';
 
 interface MatchProfile {
@@ -7,7 +7,7 @@ interface MatchProfile {
   name: string;
   title: string;
   location: string;
-  profileImage: string;
+  profileImage: ImageSourcePropType;
   careerInterests: string[];
   personalInterests: string[];
   availability: string;

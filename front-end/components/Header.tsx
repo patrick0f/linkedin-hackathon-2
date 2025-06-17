@@ -32,9 +32,9 @@ export const Header = ({ onMessagePress }: HeaderProps) => {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onMessagePress}>
-          <AntDesign name="form" size={24} color="#666" />
+          <Ionicons name="chatbubbles" size={24} color="#666" />
         </TouchableOpacity>
-
+        
         <TouchableOpacity onPress={onMessagePress}>
           <Ionicons name="chatbubble-ellipses-sharp" size={24} color="#666" />
         </TouchableOpacity>
