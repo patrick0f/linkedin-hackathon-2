@@ -1,109 +1,88 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { messagesStyles } from '../styles/messagesStyles';
 import CoffeeChats from './CoffeeChats';
 import ChatDetail from './ChatDetail';
+import { userService } from '../services/api';
+import { useUser } from '../contexts/UserContext';
 
-interface MessageItem {
-  id: number;
+interface User {
+  id: string;
   name: string;
-  message: string;
-  time: string;
-  unread?: boolean;
-  avatar: any;
-  hiring?: boolean;
-  online?: boolean;
-  isInMail?: boolean;
-  userId: string;
-  status?: string;
+  current_location: string | null;
+  profile_pic?: string | null;
 }
+/// 
 
-const MESSAGES: MessageItem[] = [
-  {
-    id: 1,
-    userId: '1',
-    name: 'Stuart Arnold',
-    message: 'Of course send your mail',
-    time: '10:07 AM',
-    unread: true,
-    avatar: require('../assets/default-profile.png'),
-    status: 'Online',
-  },
-  {
-    id: 2,
-    userId: '2',
-    name: 'Thomas Simmons',
-    message: 'You: OK',
-    time: 'Sat',
-    avatar: require('../assets/default-profile.png'),
-    hiring: true,
-    status: 'Away',
-  },
-  {
-    id: 3,
-    userId: '3',
-    name: 'Sandra Hernandez',
-    message: 'You: I plunged headlong into QA',
-    time: 'Fri',
-    avatar: require('../assets/default-profile.png'),
-    online: true,
-    status: 'Online',
-  },
-  {
-    id: 4,
-    userId: '4',
-    name: 'Ray Willis',
-    message: "You: I'll be able to read it later",
-    time: 'Wed',
-    avatar: require('../assets/default-profile.png'),
-    online: true,
-    status: 'Online',
-  },
-  {
-    id: 5,
-    userId: '5',
-    name: 'Mary Newman',
-    message: 'Hi, there is a suggestion',
-    time: 'Tue',
-    isInMail: true,
-    avatar: require('../assets/default-profile.png'),
-    status: 'Away',
-  },
+// Hardcoded messages for each user
+const RANDOM_MESSAGES = [
+  "Let's connect and discuss opportunities!",
+  "Thanks for reaching out!",
+  "Great meeting you at the conference!",
+  "Would love to learn more about your work",
+  "Excited to connect with you",
+  "Looking forward to collaborating",
+  "Thanks for accepting my connection request",
+  "Interesting profile! Let's chat",
 ];
 
 const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread', 'Drafts', 'inMail'];
 
 export const Messages = ({ onClose }: { onClose: () => void }) => {
+  const { currentUser } = useUser();
   const [activeFilter, setActiveFilter] = useState('Focused');
-  const [selectedChat, setSelectedChat] = useState<MessageItem | null>(null);
-  const [showCoffeeChats, setShowCoffeeChats] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<null | {
+    name: string;
+    avatar: any;
+    status?: string;
+    userId: string;
+  }>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChatPress = (message: MessageItem) => {
-    setSelectedChat(message);
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const usersData = await userService.getAllUsers();
+      // Filter out the current user
+      //
+      const otherUsers = usersData.filter((user: User) => user.id !== currentUser?.id);
+      setUsers(otherUsers);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading users:', err);
+      setError('Failed to load connections');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleBackToMessages = () => {
+  const handleChatPress = (user: User) => {
+    setSelectedChat({
+      name: user.name,
+      avatar: user.profile_pic ? { uri: user.profile_pic } : require('../assets/default-profile.png'),
+      status: 'Online', // Hardcoded for now
+      userId: user.id,
+    });
+  };
+
+  const handleScheduleChat = () => {
+    setActiveFilter('Coffee Chats');
     setSelectedChat(null);
-    setShowCoffeeChats(false);
   };
-
-  if (showCoffeeChats) {
-    return <CoffeeChats />;
-  }
 
   if (selectedChat) {
     return (
       <ChatDetail
-        contact={{
-          name: selectedChat.name,
-          avatar: selectedChat.avatar,
-          status: selectedChat.status,
-          userId: selectedChat.userId,
-        }}
-        onClose={handleBackToMessages}
-        onScheduleChat={() => setShowCoffeeChats(true)}
-        onNavigateToCoffeeChats={() => setShowCoffeeChats(true)}
+        contact={selectedChat}
+        onClose={() => setSelectedChat(null)}
+        onScheduleChat={handleScheduleChat}
       />
     );
   }
@@ -113,79 +92,74 @@ export const Messages = ({ onClose }: { onClose: () => void }) => {
       return <CoffeeChats />;
     }
 
+    if (loading) {
+      return (
+        <View style={messagesStyles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0077B5" />
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={messagesStyles.errorContainer}>
+          <Text style={messagesStyles.errorText}>{error}</Text>
+        </View>
+      );
+    }
+
     return (
       <ScrollView style={messagesStyles.messagesList}>
-        {MESSAGES.map((message) => (
-          <TouchableOpacity 
-            key={message.id} 
-            style={messagesStyles.messageItem}
-            testID={`message-item-${message.id}`}
-            onPress={() => handleChatPress(message)}
-          >
-            <View style={messagesStyles.avatarContainer} testID="avatar-container">
-              <Image 
-                source={message.avatar} 
-                style={messagesStyles.avatar}
-                testID="avatar-image" 
-              />
-              {message.online && (
-                <View 
-                  style={messagesStyles.onlineIndicator}
-                  testID="online-indicator" 
+        {users.map((user, index) => {
+          // Get a random message for each user
+          const randomMessage = RANDOM_MESSAGES[index % RANDOM_MESSAGES.length];
+          const isUnread = index % 3 === 0; // Make every third message unread
+
+          return (
+            <TouchableOpacity 
+              key={user.id} 
+              style={messagesStyles.messageItem}
+              testID={`message-item-${user.id}`}
+              onPress={() => handleChatPress(user)}
+            >
+              <View style={messagesStyles.avatarContainer} testID="avatar-container">
+                <Image 
+                  source={user.profile_pic ? { uri: user.profile_pic } : require('../assets/default-profile.png')} 
+                  style={messagesStyles.avatar}
+                  testID="avatar-image" 
                 />
-              )}
-              {message.hiring && (
-                <View 
-                  style={messagesStyles.hiringBadge}
-                  testID="hiring-badge"
-                >
-                  <Text 
-                    style={messagesStyles.hiringText}
-                    testID="hiring-text"
-                  >
-                    HIRING
+              </View>
+              <View style={messagesStyles.messageContent} testID="message-content">
+                <View style={messagesStyles.messageHeader} testID="message-header">
+                  <Text style={messagesStyles.name} testID="message-name">
+                    {user.name}
+                  </Text>
+                  <Text style={messagesStyles.time} testID="message-time">
+                    {index % 2 === 0 ? 'Just now' : `${index + 1}h`}
                   </Text>
                 </View>
-              )}
-            </View>
-            <View style={messagesStyles.messageContent} testID="message-content">
-              <View style={messagesStyles.messageHeader} testID="message-header">
-                <Text style={messagesStyles.name} testID="message-name">
-                  {message.name}
-                </Text>
-                <Text style={messagesStyles.time} testID="message-time">
-                  {message.time}
-                </Text>
-              </View>
-              <View style={messagesStyles.messagePreview} testID="message-preview">
-                {message.isInMail && (
-                  <Text 
-                    style={messagesStyles.inMailBadge}
-                    testID="inmail-badge"
+                <View style={messagesStyles.messagePreview} testID="message-preview">
+                  <Text
+                    style={[
+                      messagesStyles.messageText,
+                      isUnread && messagesStyles.unreadMessage,
+                    ]}
+                    testID={isUnread ? 'message-text-unread' : 'message-text'}
+                    numberOfLines={1}
                   >
-                    InMail
+                    {randomMessage}
                   </Text>
-                )}
-                <Text
-                  style={[
-                    messagesStyles.messageText,
-                    message.unread && messagesStyles.unreadMessage,
-                  ]}
-                  testID={message.unread ? 'message-text-unread' : 'message-text'}
-                  numberOfLines={1}
-                >
-                  {message.message}
-                </Text>
-                {message.unread && (
-                  <View 
-                    style={messagesStyles.unreadDot}
-                    testID="unread-dot" 
-                  />
-                )}
+                  {isUnread && (
+                    <View 
+                      style={messagesStyles.unreadDot}
+                      testID="unread-dot" 
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     );
   };
