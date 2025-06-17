@@ -102,7 +102,7 @@ export const profileOverlayStyles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     color: '#000',
-    fontWeight: 'semibold',
+    fontWeight: 500,
   },
   streakSection: {
     padding: 16,

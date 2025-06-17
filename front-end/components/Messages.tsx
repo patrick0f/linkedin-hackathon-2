@@ -47,7 +47,7 @@ const MESSAGES = [
   },
 ];
 
-const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread'];
+const MessageFilters = ['Focused', 'Coffee Chats', 'Jobs', 'Unread', 'Drafts', 'inMail'];
 
 export const Messages = ({ onClose }: { onClose: () => void }) => {
   const [activeFilter, setActiveFilter] = useState('Focused');
