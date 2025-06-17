@@ -2,14 +2,19 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import userRoutes from './routes/users';
+import postRoutes from './routes/posts';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3002;
 
-// Enable CORS for all routes
-app.use(cors());
+// Enable CORS for the frontend
+app.use(cors({
+  origin: 'http://localhost:8082',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
 
 // Parse JSON bodies
 app.use(express.json());
@@ -37,6 +42,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

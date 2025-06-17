@@ -21,8 +21,8 @@ console.log('Dotenv config result:', {
 });
 
 // TEMPORARY: For testing only
-process.env.SUPABASE_URL = 'https://your-project-url.supabase.co';  // Replace this with your actual URL
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'your-service-role-key';     // Replace this with your actual key
+// process.env.SUPABASE_URL = 'https://your-project-url.supabase.co';  // Replace this with your actual URL
+// process.env.SUPABASE_SERVICE_ROLE_KEY = 'your-service-role-key';     // Replace this with your actual key
 
 // Use either the backend-specific vars or the Next.js public vars
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
