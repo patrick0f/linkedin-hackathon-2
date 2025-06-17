@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { profileOverlayStyles } from '../styles/profileOverlayStyles';
 import PointsExplanationModal from './PointsExplanationModal';
 
@@ -39,7 +39,7 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
             <View style={profileOverlayStyles.nameSection}>
               <Text style={profileOverlayStyles.name}>Name
                 <FontAwesome name="linkedin-square" size={16} color="#0077B5" style={profileOverlayStyles.icon} />
-                <FontAwesome name="shield" size={16} color="#DAA520" style={profileOverlayStyles.icon} />
+                <MaterialCommunityIcons name="shield-crown-outline" size={16} color="#DAA520" style={profileOverlayStyles.icon} />
               </Text>
               <Text style={profileOverlayStyles.title}>Sophomore at Stanford University</Text>
               <Text style={profileOverlayStyles.location}>Miami Beach, Florida, United States</Text>
